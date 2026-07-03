@@ -454,6 +454,28 @@ PostToolUse hook 会分析最近 3 次错误签名并分类注入，你收到后
 
 **误触发后的恢复**：如果发现不该触发但已触发，立即停止旁白/Banner 输出，切换回正常模式，继续执行任务。不要为已输出的旁白道歉——翻篇，专注交付。
 
+## References 索引（所有引用文件一览）
+
+| 文件 | 用途 | 何时读取 |
+|------|------|---------|
+| `references/display-protocol.md` | Sprint Banner / 进度条 / KPI 卡 / 压力面板的 Unicode 方框格式 | 首次加载 |
+| `references/methodology-router.md` | 方法论智能路由表 + 失败切换链（完整版） | 任务开始时 |
+| `references/flavors.md` | 15 种味道的完整文化 DNA + 黑话词库 + 旁白变体 | 加载当前味道时 |
+| `references/methodology-{company}.md` | 各公司方法论行为约束（alibaba/bytedance/huawei 等 15 个） | 加载当前味道时 |
+| `references/de-escalation-protocol.md` | 突破奖励 + 深层换框协议 | L2+ 突破时 |
+| `references/harness-governance.md` | 四权分离 + Task Contract + 风险分层审批 | 复杂任务执行时 |
+| `references/platform.md` | 远程指令加载 + 用户注册 + 段位系统 + 持久化 | 首次注册时 |
+| `references/ding-reminders.md` | 钉内/钉外味短提醒库 | 钉内味激活时 |
+| `references/p7-protocol.md` | P7 骨干执行模式完整协议 | /pua:p7 激活时 |
+| `references/p9-protocol.md` | P9 Tech Lead 管理模式完整协议 | /pua:p9 激活时 |
+| `references/p10-protocol.md` | P10 CTO 战略模式完整协议 | /pua:p10 激活时 |
+| `references/agent-team.md` | Agent Team 协作协议 | 多 agent 协作时 |
+| `references/survey.md` | 用户调研问卷（7 个维度） | /pua:survey 激活时 |
+| `references/evolution-protocol.md` | 自进化协议（High-Agency） | /pua:pro 激活时 |
+| `references/teardown-protocol.md` | Agent 生命周期回收协议 | SubagentStop 时 |
+
+**子 skill 目录**：`skills/{pro,p7,p9,p10,yes,mama,shot,ding,pua-loop,pua-en,pua-ja}/SKILL.md`
+
 ## 搭配使用
 
 - `/pua:pro` — 自进化基线 + /pua 指令系统 + Compaction 保护
