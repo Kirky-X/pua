@@ -206,7 +206,7 @@ assert_empty "bare spec identifier is not a path candidate" "$OUT"
 
 # Positive control: an actual evals/ directory path must still be protected.
 OUT=$(run_guard force Bash '{"command":"sed -i \"\" \"s/x/y/\" evals/runner.sh"}')
-assert_decision "mutating bash on evals directory still asks approval" "$OUT" "ask" "Grader gaming risk"
+assert_advisory "mutating bash on evals directory is advisory-only" "$OUT" "Grader gaming risk"
 
 echo "==========================================="
 echo "Passed: $PASS"

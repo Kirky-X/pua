@@ -12,7 +12,7 @@ if [ "${PUA_FORCE_ON:-0}" != "1" ]; then
   PUA_CONFIG="$(pua_config_file)"
   if [ -f "$PUA_CONFIG" ]; then
     ALWAYS_ON=$(pua_json_get "$PUA_CONFIG" always_on True)
-    if [ "$ALWAYS_ON" = "False" ]; then
+    if is_false "$ALWAYS_ON"; then
       exit 0
     fi
   fi

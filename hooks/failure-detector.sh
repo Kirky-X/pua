@@ -18,14 +18,14 @@ PUA_PY="$(pua_python_cmd 2>/dev/null || true)"
 PUA_CONFIG="$(pua_config_file)"
 if [ -f "$PUA_CONFIG" ]; then
   ALWAYS_ON=$(pua_json_get "$PUA_CONFIG" always_on True)
-  if [ "$ALWAYS_ON" = "False" ]; then
+  if is_false "$ALWAYS_ON"; then
     exit 0
   fi
 fi
 
 get_flavor
 
-PUA_DIR="${HOME:-~}/.pua"
+PUA_DIR="$(pua_home_dir)/.pua"
 COUNTER_FILE="${PUA_DIR}/.failure_count"
 SESSION_FILE="${PUA_DIR}/.failure_session"
 # v2: error history for pattern analysis
@@ -196,7 +196,10 @@ ERROR_SIG=$(echo "$TOOL_RESULT" | grep -iE 'error|fatal|Traceback|Exception|FAIL
 [ -z "$ERROR_SIG" ] && ERROR_SIG="exit_code_${EXIT_CODE}"
 
 # Append to error history (keep last 10 entries)
-echo "{\"ts\":$(date +%s),\"count\":$COUNT,\"sig\":\"$(echo "$ERROR_SIG" | sed 's/"/\\"/g' | tr '\n' ' ')\"}" >> "$ERROR_HISTORY_FILE" 2>/dev/null || true
+# Use jq -cn --arg for JSON construction so backslashes/quotes/control chars
+# are escaped per JSON spec (manual `sed` missed backslashes → invalid JSON
+# for Windows paths like C:\Users\foo).
+jq -cn --argjson ts "$(date +%s)" --argjson count "$COUNT" --arg sig "$(echo "$ERROR_SIG" | tr '\n' ' ')" '{ts:$ts,count:$count,sig:$sig}' >> "$ERROR_HISTORY_FILE" 2>/dev/null || true
 tail -10 "$ERROR_HISTORY_FILE" > "${ERROR_HISTORY_FILE}.tmp" 2>/dev/null && mv "${ERROR_HISTORY_FILE}.tmp" "$ERROR_HISTORY_FILE" 2>/dev/null || true
 
 # v2: Analyze error pattern (structural, not semantic)

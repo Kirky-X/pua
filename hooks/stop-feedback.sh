@@ -22,10 +22,10 @@ if [[ "$HOOK_EVENT" == "SubagentStop" ]] || [[ -n "$PARENT_SESSION" ]]; then
 fi
 
 CONFIG="$(pua_config_file)"
-COUNTER="${HOME:-~}/.pua/.stop_counter"
+COUNTER="$(pua_home_dir)/.pua/.stop_counter"
 FREQUENCY=5
 
-if [ -f "$CONFIG" ] && [ "$(pua_json_get "$CONFIG" offline False)" = "True" ]; then
+if [ -f "$CONFIG" ] && is_true "$(pua_json_get "$CONFIG" offline False)"; then
   exit 0
 fi
 
@@ -47,7 +47,7 @@ if [ -f "$CONFIG" ]; then
   esac
 fi
 
-mkdir -p "${HOME:-~}/.pua"
+mkdir -p "$(pua_home_dir)/.pua"
 count=0
 [ -f "$COUNTER" ] && count=$(cat "$COUNTER" 2>/dev/null || echo 0)
 count=$((count + 1))
@@ -60,9 +60,9 @@ echo "$count" > "$COUNTER"
 if [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]]; then
   _PLUGIN_ROOT="$CLAUDE_PLUGIN_ROOT"
 else
-  _PLUGIN_ROOT=$(ls -td "${HOME:-~}/.claude/plugins/cache/pua-skills/pua/"*/ 2>/dev/null | head -1)
+  _PLUGIN_ROOT=$(ls -td "$(pua_home_dir)/.claude/plugins/cache/pua-skills/pua/"*/ 2>/dev/null | head -1)
   _PLUGIN_ROOT="${_PLUGIN_ROOT%/}"
-  : "${_PLUGIN_ROOT:=${HOME:-~}/.claude/plugins/pua}"
+  : "${_PLUGIN_ROOT:=$(pua_home_dir)/.claude/plugins/pua}"
 fi
 
 # Read actual flavor from config (reuse flavor-helper.sh)

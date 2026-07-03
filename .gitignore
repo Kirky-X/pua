@@ -1,5 +1,6 @@
 node_modules/
 dist/
+specmark/
 .DS_Store
 docs/.local
 pua-workspace/CLAUDE.md

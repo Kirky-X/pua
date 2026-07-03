@@ -29,7 +29,7 @@ pua_to_python_path() {
 }
 
 pua_config_file() {
-  printf '%s\n' "${PUA_CONFIG:-${HOME:-~}/.pua/config.json}"
+  printf '%s\n' "${PUA_CONFIG:-$(pua_home_dir)/.pua/config.json}"
 }
 
 pua_json_get() {
@@ -47,6 +47,38 @@ try:
     print(value)
 except Exception:
     print(default)' "$py_path" "$key" "$default" 2>/dev/null || printf '%s\n' "$default"
+}
+
+# Resolve the user's home directory. bash does not expand `~` inside double
+# quotes, so a HOME-tilde fallback in double quotes produces a literal `~`
+# directory when HOME is unset (e.g. some Windows Git Bash invocations).
+# This helper returns $HOME when set, and otherwise falls back to
+# `eval printf '%s' '~'` which performs tilde expansion against the password
+# database (no user input, no injection risk).
+pua_home_dir() {
+  if [ -n "${HOME:-}" ]; then
+    printf '%s' "$HOME"
+  else
+    eval printf '%s' '~'
+  fi
+}
+
+# Case-insensitive boolean checkers shared by all hooks. pua_json_get (Python
+# json.load) returns lowercase "true"/"false" for string JSON values, but
+# capitalized "True"/"False" for boolean JSON values; bare `[ "$X" = "True" ]`
+# only matches the latter. These helpers accept both plus yes/no/1/0/on/off.
+is_true() {
+  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+    true|1|yes|on) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+is_false() {
+  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+    false|0|no|off) return 0 ;;
+    *) return 1 ;;
+  esac
 }
 
 get_flavor() {

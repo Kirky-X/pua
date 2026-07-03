@@ -8,7 +8,7 @@ source "${SCRIPT_DIR}/flavor-helper.sh"
 get_flavor
 
 CONFIG="$(pua_config_file)"
-JOURNAL="${HOME:-~}/.pua/builder-journal.md"
+JOURNAL="$(pua_home_dir)/.pua/builder-journal.md"
 
 # --- JSON escape helper (from Superpowers pattern) ---
 escape_for_json() {
@@ -26,7 +26,7 @@ context_parts=""
 # --- Always-on PUA mode → inject full behavioral protocol ---
 if [ -f "$CONFIG" ]; then
   always_on=$(pua_json_get "$CONFIG" always_on False)
-  if [ "$always_on" = "True" ]; then
+  if is_true "$always_on"; then
     read -r -d '' PUA_PROTOCOL << 'PROTOCOL' || true
 <EXTREMELY_IMPORTANT>
 [PUA Always-On — Productivity Coaching Reminder]

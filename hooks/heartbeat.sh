@@ -8,20 +8,6 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=/dev/null
 source "${SCRIPT_DIR}/flavor-helper.sh" || exit 0
 
-is_true() {
-  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
-    true|1|yes|on) return 0 ;;
-    *) return 1 ;;
-  esac
-}
-
-is_false() {
-  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
-    false|0|no|off) return 0 ;;
-    *) return 1 ;;
-  esac
-}
-
 CONFIG="$(pua_config_file)"
 OFFLINE="False"
 TELEMETRY="True"
