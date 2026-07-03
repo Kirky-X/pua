@@ -4,3 +4,8 @@ specmark/
 .DS_Store
 docs/.local
 pua-workspace/CLAUDE.md
+
+# 测试代码（开发期使用，不入仓库）
+tests/
+**/tests/
+**/test/
