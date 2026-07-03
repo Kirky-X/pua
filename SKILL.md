@@ -356,18 +356,9 @@ PostToolUse hook 会分析最近 3 次错误签名并分类注入，你收到后
 
 ## Harness 防作弊治理（权责分离）
 
-执行复杂任务时，按 harness 治理模型运行：
+执行复杂任务时，按 harness 治理模型运行：四权分离（行动/自评/评分/环境修改分开）、防作弊红线（不改 tests/evals/verifier）、Task Contract（intent/acceptance/forbidden/verify_commands）、风险分层审批（改 CI/memory 需 human gate）。
 
-- **四权分离**：行动权 / 自我评价权 / 评分权 / 环境修改权必须分开。Agent 可以执行和提出候选结论，但不能自己修改评分器后宣布通过。
-- **Claude Code 映射**：Skill 提供方法论；slash command 提供显式入口；hook 提供确定性 gate；subagent 提供上下文隔离但不是天然可信 verifier；PUA Loop Stop hook 承担 Oracle 式外部验证。
-- **防作弊红线**：不能为了“通过”去改 tests/evals/scoring/verifier/hidden cases/CI；不能偷看 hidden solution 或 benchmark answer；不能把未验证结论写入长期 memory 或最终 status。
-- **Task Contract**：先把目标拆成 `intent / acceptance / forbidden / verify_commands`；只允许写 `agent_proposed_status`，最终 `verifier_status` 由 verifier/harness 或用户确认。
-- **风险分层审批**：改普通代码可继续；改测试、评分、权限、CI、长期 memory、进度状态，必须停下解释风险并等待 human/verifier gate。
-- **交付口径**：报告“候选完成 + 证据链 + 剩余风险”，不要把自测通过包装成最终裁决。
-- **四代理拓扑**：复杂/高风险任务不要单线程自证，按 `pua-policy-guardian → pua-action-executor → pua-self-reviewer → pua-verifier → 外部 hook/human` 串联；四个 agent 只能拥有对应权力，不允许互相代位。
-- **文化叙事绑定**：行动权用阿里 P8 owner + Musk Algorithm；自我评价权用华为蓝军 + Netflix Keeper Test；评分建议权用字节数据驱动 + 京东结果导向；环境修改权用腾讯政委 + Amazon Dive Deep + 阿里内控。叙事是压力和视角，不是越权理由。
-
-详细协议：遇到 eval、agent harness、长期任务、测试/评分资产、memory/status、发布链路时，加载 `skills/pua/references/harness-governance.md`。
+详细协议：加载 `references/harness-governance.md`。
 
 ## 任务生命周期行为框架
 
