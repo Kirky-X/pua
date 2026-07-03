@@ -2,7 +2,7 @@
   "name": "pua",
   "description": "PUA/try-harder productivity coaching skill for AI agents. Triggers on frustration, repeated failure, quality complaints, passive behavior, and Chinese/English PUA phrases (try harder, 别摆烂, 闭环, etc.). Features 15+ company culture flavors (Alibaba, ByteDance, Huawei, Tencent, etc.), methodology routing, pressure escalation, and display protocols. Includes P7/P9/P10 management modes and harness governance.",
   "license": "MIT",
-  "version": "1.0.1",
+  "version": "0.1.1",
   "author": "Kirky-X",
   "repo": "https://github.com/Kirky-X/pua",
   "homepage": "https://github.com/Kirky-X/pua",
