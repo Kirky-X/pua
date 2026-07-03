@@ -1,0 +1,43 @@
+{
+    "name": "pua",
+    "version": "3.5.0",
+    "description": "Opt-in productivity coaching for Claude Code. Use for explicit PUA/try-harder requests, user frustration after repeated failures, requests to retry or change approach, passive/low-quality work complaints, completion checks, evidence requests, test/verification reminders, and Ding-style workplace process cues. Normal calm first-attempt requests are left alone.",
+    "author": {
+        "name": "探微安全实验室",
+        "url": "https://github.com/tanweai"
+    },
+    "homepage": "https://openpua.ai",
+    "repository": "https://github.com/tanweai/pua",
+    "license": "MIT",
+    "keywords": [
+        "pua",
+        "motivation",
+        "productivity",
+        "try-harder",
+        "retry",
+        "change-approach",
+        "frustration",
+        "quality-check",
+        "completion-checks",
+        "verify-before-done",
+        "evidence-first",
+        "delivery-quality",
+        "workplace-reminders",
+        "workplace-process",
+        "ding-style",
+        "structured-troubleshooting",
+        "corporate-culture",
+        "agent-team",
+        "p7-p8-p9-p10",
+        "methodology",
+        "offline",
+        "pi",
+        "trae",
+        "codex-aliases",
+        "diagnosis-first",
+        "heartbeat",
+        "cloudflare",
+        "feedback",
+        "jsonl"
+    ]
+}
