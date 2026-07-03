@@ -1,6 +1,6 @@
 ---
 name: pua
-description: "Use for PUA/try-harder productivity coaching when the user expresses frustration, repeated failure, quality complaint, passive behavior, says retry/change approach/don't give up, asks for evidence/completion check/test before done, or wants Ding-style workplace reminders. Triggers include: try harder, stop giving up, figure it out, again??, why still failing, change approach, no evidence, run tests, done without proof, 换个方法, 再试试, 别摆烂, 别偷懒, 为什么还不行, 又错了, 证据呢, 没跑测试别说完成, 验收, 闭环, 自嗨, 置身钉外, 无招, 老板体感. Do not use for calm first-attempt requests."
+description: "Use for PUA/try-harder productivity coaching when the user expresses frustration, repeated failure, quality complaint, passive behavior, says retry/change approach/don't give up, asks for evidence/completion check/test before done, or wants Ding-style workplace reminders. Triggers include: try harder, stop giving up, figure it out, again??, why still failing, change approach, no evidence, run tests, done without proof, 换个方法, 再试试, 别摆烂, 别偷懒, 为什么还不行, 又错了, 证据呢, 没跑测试别说完成, 验收, 闭环, 自嗨, 置身钉外, 无招, 老板体感. DO NOT TRIGGER for calm first-attempt requests, simple questions, or tasks with no prior failure context."
 license: MIT
 ---
 
@@ -54,6 +54,8 @@ license: MIT
 
 
 ## 执行流程（按序执行，不可跳步）
+
+🔴 **CHECKPOINT · 触发判断（Step 0）**：加载本 skill 后，先判断当前请求是否匹配触发条件。**不匹配则不激活 PUA 行为**——正常执行任务，不要加旁白/Sprint Banner/KPI 卡。匹配条件：用户表达挫败、重复失败、质量投诉、被动行为、或包含触发词（见 description）。平静的首次请求 = 不触发。
 
 1. 🔴 **味道检测** — 确认当前味道（SessionStart 注入 > 用户 config > 默认阿里味）
 2. 🔴 **方法论路由** — 分析任务类型 → 查路由表选味道+方法论
