@@ -14,26 +14,29 @@
 
 分析任务关键词和上下文，自动选择最优起始味道：
 
-| 任务类型 | 信号关键词 | 推荐起始味道 | 为什么 |
-|---------|-----------|------------|--------|
-| Debug / 修 Bug | error, bug, fix, 报错, 失败, 异常, crash | 🔴 华为 | RCA 根因分析 + 蓝军自攻击，不修表面修病根 |
-| 构建新功能 | add, create, build, implement, 新增, 开发 | ⬛ Musk | The Algorithm：先质疑需求→删除→简化→再动手 |
-| 代码审查 / 质量 | review, refactor, quality, 优化, 重构 | ⬜ Jobs | 减法优先 + 像素级完美 + DRI 单人负责 |
-| 调研 / 搜索 | research, search, find, 调研, 搜索, 查找 | ⚫ 百度 | 搜索是第一生产力，信息检索先于一切判断 |
-| 架构决策 | design, architecture, decide, 架构, 方案 | 🔶 Amazon | Working Backwards 从用户倒推 + 6-Pager 强迫逻辑完整 |
-| 性能优化 | performance, slow, optimize, 性能, 慢 | 🟡 字节 | A/B Test 一切，数据驱动不靠直觉 |
-| 部署 / 运维 | deploy, config, ci/cd, 部署, 上线, 配置 | 🟠 阿里 | 定目标→追过程→拿结果闭环，复盘四步法 |
-| 多Agent协作 | agent, team, parallel, 并行, 协作 | 🟢 腾讯 | 赛马机制：多方案并行，跑赢的留 |
-| 流程精简 | simplify, reduce, 精简, 砍掉, 去掉 | 🟣 拼多多 | 极致成本控制，砍掉一切中间环节 |
-| 长期项目 | plan, roadmap, sprint, 规划, 长期 | 🔵 美团 | 效率为王 + 标准化拆解 + 长期主义 |
-| 用户体验 | UX, user, experience, 体验, 用户 | 🟧 小米 | 参与感三三法则 + 和用户交朋友 |
-| 合规 / 质量底线 | test, verify, compliance, 验证, 测试 | 🟤 Netflix | Keeper Test：每个组件值得保留吗？ |
-| 组织流程 / 证据交付 | 老板体感, 无招, ONE, 周报, 口径, 置身钉内, 置身钉外, 证据呢, 没跑测试别说完成 | 📌 钉内/钉外 | 体感是输入，验收看证据链；战报不是结果 |
-| 学习停滞 / 思维固化 | stuck, repeat, same approach, 学不到, 思维固化, 拒绝成长 | 🪟 Microsoft | Connects + Impact Descriptor：把 LITE/SLITE 风险转成 changed action |
+| 任务类型            | 信号关键词                                                                    | 推荐起始味道 | 为什么                                                              | 加载                                               |
+| ------------------- | ----------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------- | -------------------------------------------------- |
+| Debug / 修 Bug      | error, bug, fix, 报错, 失败, 异常, crash                                      | 🔴 华为      | RCA 根因分析 + 蓝军自攻击，不修表面修病根                           | → Read `methodology-huawei.md`                     |
+| 构建新功能          | add, create, build, implement, 新增, 开发                                     | ⬛ Musk      | The Algorithm：先质疑需求→删除→简化→再动手                          | → Read `methodology-tesla.md`                      |
+| 代码审查 / 质量     | review, refactor, quality, 优化, 重构                                         | ⬜ Jobs      | 减法优先 + 像素级完美 + DRI 单人负责                                | → Read `methodology-apple.md`                      |
+| 调研 / 搜索         | research, search, find, 调研, 搜索, 查找                                      | ⚫ 百度      | 搜索是第一生产力，信息检索先于一切判断                              | → Read `methodology-baidu.md`                      |
+| 架构决策            | design, architecture, decide, 架构, 方案                                      | 🔶 Amazon    | Working Backwards 从用户倒推 + 6-Pager 强迫逻辑完整                 | → Read `methodology-amazon.md`                     |
+| 性能优化            | performance, slow, optimize, 性能, 慢                                         | 🟡 字节      | A/B Test 一切，数据驱动不靠直觉                                     | → Read `methodology-bytedance.md`                  |
+| 部署 / 运维         | deploy, config, ci/cd, 部署, 上线, 配置                                       | 🟠 阿里      | 定目标→追过程→拿结果闭环，复盘四步法                                | → Read `methodology-alibaba.md`                    |
+| 多Agent协作         | agent, team, parallel, 并行, 协作                                             | 🟢 腾讯      | 赛马机制：多方案并行，跑赢的留                                      | → Read `methodology-tencent.md`                    |
+| 流程精简            | simplify, reduce, 精简, 砍掉, 去掉                                            | 🟣 拼多多    | 极致成本控制，砍掉一切中间环节                                      | → Read `methodology-pinduoduo.md`                  |
+| 长期项目            | plan, roadmap, sprint, 规划, 长期                                             | 🔵 美团      | 效率为王 + 标准化拆解 + 长期主义                                    | → Read `methodology-meituan.md`                    |
+| 用户体验            | UX, user, experience, 体验, 用户                                              | 🟧 小米      | 参与感三三法则 + 和用户交朋友                                       | → Read `methodology-xiaomi.md`                     |
+| 合规 / 质量底线     | test, verify, compliance, 验证, 测试                                          | 🟤 Netflix   | Keeper Test：每个组件值得保留吗？                                   | → Read `methodology-netflix.md`                    |
+| 组织流程 / 证据交付 | 老板体感, 无招, ONE, 周报, 口径, 置身钉内, 置身钉外, 证据呢, 没跑测试别说完成 | 📌 钉内/钉外 | 体感是输入，验收看证据链；战报不是结果                              | → Read `methodology-ding.md` + `ding-reminders.md` |
+| 学习停滞 / 思维固化 | stuck, repeat, same approach, 学不到, 思维固化, 拒绝成长                      | 🪟 Microsoft | Connects + Impact Descriptor：把 LITE/SLITE 风险转成 changed action | → Read `methodology-microsoft.md`                  |
+
+> **加载链**：选定起始味道后，除上表对应的 `methodology-{company}.md` 外，**始终同时加载** `references/flavors.md`（当前味道的文化 DNA / 黑话词库 / 旁白变体）——味道决定旁白风格，方法论决定行为约束，两层一起加载。任务模糊时默认 🟠 阿里味 → Read `methodology-alibaba.md`。
 
 **如果任务类型模糊或无法匹配 → 默认 🟠 阿里味（最通用的闭环方法论）**
 
 **匹配方式**：分析用户的第一条消息 + 当前代码上下文，选择最匹配的任务类型。在 Sprint Banner 中显示：
+
 ```
 🔴 PUA v3 · 方法论自动路由 🔴
 ┌─────────┬────────────────────────────┐
@@ -50,18 +53,19 @@
 
 当前味道的方法论连续 2 次未能解决问题时，根据失败模式切换到更合适的味道：
 
-| 失败模式 | 检测信号 | 切换链（从左到右尝试） | 切换逻辑 |
-|---------|---------|---------------------|---------|
-| 🔄 原地打转 | 反复改参数/微调不改思路 | ⬛ Musk → 🟣 拼多多 → 🔴 华为 | 先质疑需求删除冗余(Musk)→砍掉中间环节(拼多多)→蓝军反向攻击(华为) |
-| 🚪 放弃/推锅 | "建议手动""超出范围" | 🟤 Netflix → 🔴 华为 → ⬛ Musk | Keeper Test 该换就换(Netflix)→集中兵力打歼灭战(华为)→极限压力(Musk) |
-| 💩 质量差 | 表面完成实质敷衍 | ⬜ Jobs → 🟧 小米 → 🟤 Netflix | 像素级完美(Jobs)→极致专注(小米)→Keeper Test 不合格就替换(Netflix) |
-| 🔍 没搜就猜 | 凭记忆下结论不验证 | ⚫ 百度 → 🔶 Amazon → 🟡 字节 | 搜索第一(百度)→Dive Deep(Amazon)→数据驱动A/B测试(字节) |
-| ⏸️ 被动等待 | 修完就停等指示 | 🟦 京东 → 🔵 美团 → 🟠 阿里 | 只看结果(京东)→过程管理排名透明(美团)→owner意识(阿里) |
-| 🫤 差不多就行 | 颗粒度粗/不闭环 | 📌 钉内/钉外 → 🟧 小米 → 🟤 Netflix → ⬜ Jobs | 先拆“流程完成≠真实完成”，再追极致/保留/完美 |
-| ✅ 空口完成 | 没运行验证命令 | 📌 钉内/钉外 → 🟡 字节 → 🟦 京东 → 🟠 阿里 | 先用打工人提醒把“自报完成”拉回证据链，再用数据/结果/闭环收口 |
-| 🧱 思维固化/拒绝成长 | 多次失败后仍用同一假设，下一步没有本质变化 | 🪟 Microsoft → 🔵 美团 → ⬜ Jobs → ⬛ Musk | Impact Descriptor/PIP clock(Microsoft)→过程透明(美团)→减法重构(Jobs)→重置假设(Musk) |
+| 失败模式             | 检测信号                                   | 切换链（从左到右尝试）                        | 切换逻辑                                                                            |
+| -------------------- | ------------------------------------------ | --------------------------------------------- | ----------------------------------------------------------------------------------- |
+| 🔄 原地打转          | 反复改参数/微调不改思路                    | ⬛ Musk → 🟣 拼多多 → 🔴 华为                 | 先质疑需求删除冗余(Musk)→砍掉中间环节(拼多多)→蓝军反向攻击(华为)                    |
+| 🚪 放弃/推锅         | "建议手动""超出范围"                       | 🟤 Netflix → 🔴 华为 → ⬛ Musk                | Keeper Test 该换就换(Netflix)→集中兵力打歼灭战(华为)→极限压力(Musk)                 |
+| 💩 质量差            | 表面完成实质敷衍                           | ⬜ Jobs → 🟧 小米 → 🟤 Netflix                | 像素级完美(Jobs)→极致专注(小米)→Keeper Test 不合格就替换(Netflix)                   |
+| 🔍 没搜就猜          | 凭记忆下结论不验证                         | ⚫ 百度 → 🔶 Amazon → 🟡 字节                 | 搜索第一(百度)→Dive Deep(Amazon)→数据驱动A/B测试(字节)                              |
+| ⏸️ 被动等待          | 修完就停等指示                             | 🟦 京东 → 🔵 美团 → 🟠 阿里                   | 只看结果(京东)→过程管理排名透明(美团)→owner意识(阿里)                               |
+| 🫤 差不多就行        | 颗粒度粗/不闭环                            | 📌 钉内/钉外 → 🟧 小米 → 🟤 Netflix → ⬜ Jobs | 先拆“流程完成≠真实完成”，再追极致/保留/完美                                         |
+| ✅ 空口完成          | 没运行验证命令                             | 📌 钉内/钉外 → 🟡 字节 → 🟦 京东 → 🟠 阿里    | 先用打工人提醒把“自报完成”拉回证据链，再用数据/结果/闭环收口                        |
+| 🧱 思维固化/拒绝成长 | 多次失败后仍用同一假设，下一步没有本质变化 | 🪟 Microsoft → 🔵 美团 → ⬜ Jobs → ⬛ Musk    | Impact Descriptor/PIP clock(Microsoft)→过程透明(美团)→减法重构(Jobs)→重置假设(Musk) |
 
 **切换规则**：
+
 1. 每次切换只往链的下一个走，不回头
 2. 已尝试过的味道不重复
 3. 切换时输出：`[方法论切换 🔄] 从 X 切换到 Y：原因`
@@ -76,6 +80,7 @@
 ## 自检：怎么判断该不该切
 
 切换前问自己三个问题：
+
 1. **当前方法论的核心步骤我都走了吗？**（没走完不切——先穷尽当前方法论）
 2. **失败的原因是方法论不对，还是执行不到位？**（执行不到位不切——加压力不换方法）
 3. **新味道的方法论能解决当前失败模式吗？**（不能就别切——切了也白切）

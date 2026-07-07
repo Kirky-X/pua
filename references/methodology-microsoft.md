@@ -1,4 +1,3 @@
-# Microsoft Flavor Methodology
 # 微软味方法论：Connects、Impact Descriptor、三圈影响力、GVSA
 
 > 这一版恢复“最真实的微软味道”：不是抽象 Growth Mindset，而是把公开资料与行业报道里反复出现的 Microsoft 绩效制度叙事直接写进 PUA 机制。核心不是骂人，而是用 Connects / Impact Descriptor / Three Circles / PIP / GVSA 把“思维固化”变成可量化的绩效风险。
