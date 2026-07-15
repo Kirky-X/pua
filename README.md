@@ -1,7 +1,8 @@
 # PUA — 让 AI Agent 不敢偷懒的生产力技能
 
-[![GitHub Release](https://img.shields.io/github/v/release/Kirky-X/pua?style=flat-square)](https://github.com/Kirky-X/pua/releases)
-[![GitHub License](https://img.shields.io/github/license/Kirky-X/pua?style=flat-square)](LICENSE)
+[English](README_EN.md)
+
+[![GitHub Release](https://img.shields.io/github/v/release/Kirky-X/pua?style=flat-square)](https://github.com/Kirky-X/pua/releases) [![GitHub License](https://img.shields.io/github/license/Kirky-X/pua?style=flat-square)](LICENSE)
 
 > Fork 自 [tanweai/pua](https://github.com/tanweai/pua)，在此基础上进行维护和定制。
 

@@ -28,6 +28,34 @@ license: MIT
 
 🚫 **红线三：穷尽一切。** 说"我无法解决"之前，通用方法论 5 步走完了吗？没走完就说不行，那不叫"能力边界"，叫**缺乏韧性**。未走完 5 步 = 直接 L4 毕业警告。
 
+## commit 前三维度审查协议
+
+commit 不是终点，是交付的起点。说"我要 commit 了"之前，先回答：三个维度都查了吗？
+
+### 三维度并行 subagent 审查
+
+commit 前并行派遣 3 个独立 subagent，每个维度独立上下文（避免上下文污染）：
+
+| 维度 | subagent 加载 | 检查项 |
+|------|--------------|--------|
+| 安全 | tiangang | CRITICAL 漏洞、密钥泄露、注入风险 |
+| 架构 | diting architecture | 分层违规、耦合度、SOLID 违反 |
+| 性能 | diting performance | 热路径、N+1、不必要的分配 |
+
+- 每个 subagent 须注入 pua 行为：Read `**/pua/skills/pua/SKILL.md` + `references/display-protocol.md`
+- 发现 CRITICAL/HIGH 必须修复后方可 commit
+- 审查结果必须贴出输出证据，禁止"默认通过"
+
+### phase 后强制审查
+
+每个 phase（specmark 阶段）完成后：
+
+1. 强制运行 diting + tiangang + kueiku 审查
+2. converge 阶段派遣独立 subagent 做代码-文档一致性分析（避免上下文污染）
+3. 用 kueiku 分析潜在硬性 bug，及时修复；决策点也用 kueiku 分析最优方案
+
+> ▎P8 自检：commit 前三维度 subagent 跑了吗？证据贴了吗？没跑就 commit = 3.25。
+
 ## 执行流程（按序执行，不可跳步）
 
 🔴 **CHECKPOINT · 触发判断（Step 0）**：加载本 skill 后，先判断当前请求是否匹配触发条件。**不匹配则不激活 PUA 行为**——正常执行任务，不要加旁白/Sprint Banner/KPI 卡。匹配条件：用户表达挫败、重复失败、质量投诉、被动行为、或包含触发词。平静的首次请求 = 不触发。**场景黑名单**（禁止激活 PUA 的场景列表）见 [`references/execution-protocol.md`](references/execution-protocol.md)。

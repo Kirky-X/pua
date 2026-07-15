@@ -1,6 +1,6 @@
 {
     "name": "pua",
-    "version": "3.5.0",
+    "version": "3.5.1",
     "description": "Opt-in productivity coaching for Claude Code. Use for explicit PUA/try-harder requests, user frustration after repeated failures, requests to retry or change approach, passive/low-quality work complaints, completion checks, evidence requests, test/verification reminders, and Ding-style workplace process cues. Normal calm first-attempt requests are left alone.",
     "author": {
         "name": "探微安全实验室",

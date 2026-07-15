@@ -1,7 +1,8 @@
 # PUA — Make AI Agents Too Scared to Be Lazy
 
-[![GitHub Release](https://img.shields.io/github/v/release/Kirky-X/pua?style=flat-square)](https://github.com/Kirky-X/pua/releases)
-[![GitHub License](https://img.shields.io/github/license/Kirky-X/pua?style=flat-square)](LICENSE)
+[中文](README.md)
+
+[![GitHub Release](https://img.shields.io/github/v/release/Kirky-X/pua?style=flat-square)](https://github.com/Kirky-X/pua/releases) [![GitHub License](https://img.shields.io/github/license/Kirky-X/pua?style=flat-square)](LICENSE)
 
 > Forked from [tanweai/pua](https://github.com/tanweai/pua), maintained and customized here.
 
