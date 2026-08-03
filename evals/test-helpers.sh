@@ -4,24 +4,8 @@
 
 PLUGIN_DIR="${PLUGIN_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
-# Portable timeout wrapper. macOS does not ship GNU `timeout`; Homebrew may
-# provide `gtimeout`, and Perl is available by default on macOS/Linux.
-run_with_timeout() {
-    local seconds="$1"
-    shift
-    if command -v timeout >/dev/null 2>&1; then
-        timeout "$seconds" "$@"
-    elif command -v gtimeout >/dev/null 2>&1; then
-        gtimeout "$seconds" "$@"
-    else
-        perl -e '
-            my $seconds = shift @ARGV;
-            $SIG{ALRM} = sub { exit 124 };
-            alarm($seconds);
-            exec @ARGV;
-        ' "$seconds" "$@"
-    fi
-}
+# Portable timeout wrapper (shared helper)
+source "${PLUGIN_DIR}/hooks/timeout-helper.sh"
 
 run_pua() {
     local prompt="$1"

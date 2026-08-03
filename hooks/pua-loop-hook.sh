@@ -15,24 +15,11 @@
 set -euo pipefail
 command -v jq &>/dev/null || { echo "jq not found, skipping" >&2; exit 0; }
 
-# Portable timeout wrapper. macOS does not ship GNU `timeout`; Homebrew may
-# provide `gtimeout`, and Perl is available by default on macOS/Linux.
-run_with_timeout() {
-  local seconds="$1"
-  shift
-  if command -v timeout >/dev/null 2>&1; then
-    timeout "$seconds" "$@"
-  elif command -v gtimeout >/dev/null 2>&1; then
-    gtimeout "$seconds" "$@"
-  else
-    perl -e '
-      my $seconds = shift @ARGV;
-      $SIG{ALRM} = sub { exit 124 };
-      alarm($seconds);
-      exec @ARGV;
-    ' "$seconds" "$@"
-  fi
-}
+LOCK_DIR=""  # initialized empty; set to actual lock path after state file resolution
+
+# Portable timeout wrapper (shared helper)
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${HOOK_DIR}/timeout-helper.sh"
 
 HOOK_INPUT=$(cat)
 
@@ -101,6 +88,30 @@ fi
 # Normalize CRLF
 TEMP_NORM="${RALPH_STATE_FILE}.norm.$$"
 tr -d '\r' < "$RALPH_STATE_FILE" > "$TEMP_NORM" && mv "$TEMP_NORM" "$RALPH_STATE_FILE"
+
+# ═══════════════════════════════════════════════════════════════
+# State file locking (mkdir-based, cross-platform)
+# Protects read-modify-write sequences from concurrent hook invocations.
+# mkdir is atomic on all POSIX filesystems. Stale lock > 60s → reap.
+# trap EXIT ensures cleanup on all exit paths (normal, error, signal).
+# ═══════════════════════════════════════════════════════════════
+LOCK_DIR="${RALPH_STATE_FILE}.lock"
+_pua_unlock() {
+  [[ -n "$LOCK_DIR" ]] && rmdir "$LOCK_DIR" 2>/dev/null || true
+}
+trap _pua_unlock EXIT
+
+if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+  LOCK_MTIME=$(stat -f %m "$LOCK_DIR" 2>/dev/null || stat -c %Y "$LOCK_DIR" 2>/dev/null || echo 0)
+  LOCK_NOW=$(date +%s)
+  if [[ "$LOCK_MTIME" =~ ^[0-9]+$ ]] && [[ $((LOCK_NOW - LOCK_MTIME)) -gt 60 ]]; then
+    echo "⚠️  PUA Loop: stale lock (>60s), reaping" >&2
+    rmdir "$LOCK_DIR" 2>/dev/null || true
+    mkdir "$LOCK_DIR" 2>/dev/null || exit 0
+  else
+    exit 0
+  fi
+fi
 
 # Parse frontmatter
 FRONTMATTER=$(sed -n '/^---$/,/^---$/{ /^---$/d; p; }' "$RALPH_STATE_FILE" | tr -d '\r')
