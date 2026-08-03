@@ -59,14 +59,26 @@ PUA 作为 skill 被 agent 加载后，通过自然语言意图触发，无需�
 | `/pua:pro` | 自进化 + KPI + 段位 |
 | `/pua:yes` | ENFP 夸夸模式（规则不变，旁白反转） |
 | `/pua:mama` | 妈妈唠叨模式（规则不变，旁白变中国式妈妈碎碎念） |
+| `/pua:ding` | 钉钉味 — 无招/ONE/证据链 |
 | `/pua:pua-loop` | 自动迭代（PUA 压力 × 循环机制） |
+| `/pua:flavor` | 切换 15 种大厂味道 |
+| `/pua:again` | 换个本质不同的方案再来 |
+| `/pua:done-check` | 交付验证 — 没证据不算完 |
+| `/pua:evidence` | 证据链 — 数据在哪？ |
+| `/pua:kpi` | 生成段位和绩效报告卡 |
+| `/pua:on` / `off` | 开启/关闭 PUA 自动加载 |
+| `/pua:offline` | 离线模式（关闭联网上报） |
+| `/pua:survey` | 用户调研问卷 |
+| `/pua:team-status` | 查看活跃 agent 状态 |
+| `/pua:teardown-all` | 停止并清理所有 agent |
+| `/pua:cancel-pua-loop` | 取消当前 PUA Loop |
 
 ## 能力概览
 
-### 14 种大厂味道 — 每种自带方法论
+### 15 种大厂味道 — 每种自带方法论
 
 | 味道 | 旁白风格 | 核心方法论 |
-|------|---------|-----------|
+|------|---------|----------|
 | 🟠 阿里 | 底层逻辑是什么？闭环在哪？ | 定目标→追过程→拿结果 + 复盘四步法 |
 | 🟡 字节 | ROI 太低。Always Day 1。 | A/B Test + 数据驱动 + 速度 > 完美 |
 | 🔴 华为 | 烧不死的鸟是凤凰。 | RCA 5-Why 根因分析 + 蓝军自攻击 |
@@ -81,6 +93,7 @@ PUA 作为 skill 被 agent 加载后，通过自然语言意图触发，无需�
 | ⬜ Jobs | A 级选手还是 B 级选手？ | 减法 > 加法 + DRI + 像素级完美 |
 | 🔶 Amazon | Customer Obsession。Bias for Action。 | Working Backwards + 6-Pager |
 | 🪟 Microsoft | Connects。Impact Descriptor。PIP/GVSA。 | 三圈影响力 + LITE/SLITE |
+| 📌 钉钉 | 无招。ONE。老板体感。 | 证据链 + 闭环交付 + 置身钉内/钉外 |
 
 ### 压力升级（L0-L4）
 
@@ -107,11 +120,11 @@ PUA 作为 skill 被 agent 加载后，通过自然语言意图触发，无需�
 
 ### 支持哪些平台？
 
-Claude Code、OpenAI Codex CLI、Trae、Cursor、Kiro、CodeBuddy、OpenClaw、Google Antigravity、OpenCode、VSCode (GitHub Copilot)。详见 [docs/FAQ.md](docs/FAQ.md)。
+Claude Code、OpenAI Codex CLI、Trae、Cursor、Kiro、CodeBuddy、OpenClaw、Google Antigravity、OpenCode、VSCode (GitHub Copilot)。
 
 ### 如何切换大厂味道？
 
-对话中输入 `/pua:flavor` 即可切换。支持 14 种味道。
+对话中输入 `/pua:flavor` 即可切换。支持 15 种味道。
 
 ### 英文版有什么不同？
 

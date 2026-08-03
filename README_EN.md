@@ -59,11 +59,23 @@ PUA activates via natural language intent matching when loaded as a skill — no
 | `/pua:pro` | Self-evolution + KPI + rank system |
 | `/pua:yes` | ENFP encouragement mode (same rules, opposite vibes) |
 | `/pua:mama` | Chinese mom nagging mode |
+| `/pua:ding` | Ding flavor — evidence chain + closure |
 | `/pua:pua-loop` | Auto-iteration (PUA pressure × iterative loop) |
+| `/pua:flavor` | Switch between 15 corporate flavors |
+| `/pua:again` | Retry with a fundamentally different approach |
+| `/pua:done-check` | Delivery verification — no proof, not done |
+| `/pua:evidence` | Evidence chain — where's the data? |
+| `/pua:kpi` | Generate rank & performance report card |
+| `/pua:on` / `off` | Enable/disable PUA auto-loading |
+| `/pua:offline` | Offline mode (disable network reporting) |
+| `/pua:survey` | User feedback survey |
+| `/pua:team-status` | View active agent status |
+| `/pua:teardown-all` | Stop and clean up all agents |
+| `/pua:cancel-pua-loop` | Cancel current PUA Loop |
 
 ## Capabilities
 
-### 14 Corporate Flavors — Each with its own Methodology
+### 15 Corporate Flavors — Each with its own Methodology
 
 | Flavor | Rhetoric | Methodology |
 |--------|----------|-------------|
@@ -81,6 +93,7 @@ PUA activates via natural language intent matching when loaded as a skill — no
 | ⬜ Jobs | A players or B players? | Subtraction > addition + DRI + pixel-perfect |
 | 🔶 Amazon | Customer Obsession. Bias for Action. | Working Backwards PR/FAQ + 6-Pager |
 | 🪟 Microsoft | Connects. Impact Descriptor. PIP/GVSA. | Three Circles + LITE/SLITE + PIP clock |
+| 📌 Ding | Wu Zhao. ONE. Boss feel. | Evidence chain + closure + Inside/Outside Ding |
 
 ### Pressure Escalation (L0-L4)
 
@@ -107,11 +120,11 @@ PUA activates via natural language intent matching when loaded as a skill — no
 
 ### What platforms are supported?
 
-Claude Code, OpenAI Codex CLI, Trae, Cursor, Kiro, CodeBuddy, OpenClaw, Google Antigravity, OpenCode, VSCode (GitHub Copilot). See [docs/FAQ.md](docs/FAQ.md).
+Claude Code, OpenAI Codex CLI, Trae, Cursor, Kiro, CodeBuddy, OpenClaw, Google Antigravity, OpenCode, VSCode (GitHub Copilot).
 
 ### How do I switch corporate flavors?
 
-Type `/pua:flavor` in the conversation. Supports 14 flavors.
+Type `/pua:flavor` in the conversation. Supports 15 flavors.
 
 ### What's different about the English version?
 
