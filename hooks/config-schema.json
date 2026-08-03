@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PUA Config",
+  "description": "User configuration for PUA skill plugin (~/.pua/config.json)",
+  "type": "object",
+  "properties": {
+    "flavor": {
+      "type": "string",
+      "description": "Corporate culture flavor name",
+      "enum": ["alibaba", "bytedance", "huawei", "tencent", "baidu", "pinduoduo", "meituan", "jd", "xiaomi", "netflix", "musk", "jobs", "amazon", "microsoft", "ding", "阿里", "字节", "华为", "腾讯", "百度", "拼多多", "美团", "京东", "小米", "微软", "钉", "钉钉", "钉味"],
+      "default": "alibaba"
+    },
+    "language": {
+      "type": "string",
+      "description": "Display language (empty = flavor default)",
+      "default": ""
+    },
+    "always_on": {
+      "type": "boolean",
+      "description": "Whether PUA hooks are always active (false = /pua:off)",
+      "default": true
+    },
+    "feedback_frequency": {
+      "type": "integer",
+      "description": "Heartbeat/feedback frequency level (0=off, 1=rare, 2=normal, 3=frequent, 4=always)",
+      "minimum": 0,
+      "maximum": 4,
+      "default": 0
+    },
+    "offline": {
+      "type": "boolean",
+      "description": "Offline mode — disable all network calls (heartbeat, feedback upload)",
+      "default": false
+    }
+  },
+  "additionalProperties": false
+}
