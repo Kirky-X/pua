@@ -36,31 +36,49 @@ mkdir -p "${PUA_DIR}"
 # Read hook input
 HOOK_INPUT=$(cat)
 
-# Only process Bash tool results
-TOOL_NAME=$(echo "$HOOK_INPUT" | "${PUA_PY:-python3}" -c "import sys,json; print(json.load(sys.stdin).get('tool_name',''))" 2>/dev/null || echo "")
-if [ "$TOOL_NAME" != "Bash" ]; then
+# ── Single Python call: extract all JSON fields at once ──
+# Fixes: (1) pipefail hazard from echo | python pipes, (2) 4× Python startup → 1×
+# Uses here-string (<<<) instead of pipe to avoid pipefail interaction with set -e.
+PARSED_OK="true"
+set +e
+JSON_OUT=$("${PUA_PY:-python3}" -c "
+import sys, json
+try:
+    data = json.load(sys.stdin)
+    result = data.get('tool_result', '')
+    if isinstance(result, dict):
+        text = result.get('content', result.get('text', str(result)))
+        exit_code = str(result.get('exit_code', result.get('exitCode', 0)))
+    else:
+        text = str(result)
+        exit_code = '0'
+    print(data.get('tool_name', ''))
+    print(str(text)[:2000])
+    print(exit_code)
+    print(data.get('session_id', 'unknown'))
+except Exception:
+    print('')
+    print('')
+    print('0')
+    print('unknown')
+" <<< "$HOOK_INPUT" 2>/dev/null)
+PARSED_OK=$?
+set -e
+
+if [ "$PARSED_OK" -ne 0 ] || [ -z "$JSON_OUT" ]; then
   exit 0
 fi
 
-# Extract tool result and exit code
-TOOL_RESULT=$(echo "$HOOK_INPUT" | "${PUA_PY:-python3}" -c "
-import sys, json
-data = json.load(sys.stdin)
-result = data.get('tool_result', '')
-if isinstance(result, dict):
-    result = result.get('content', result.get('text', str(result)))
-print(str(result)[:2000])
-" 2>/dev/null || echo "")
+# Parse the 4 fields from Python output (line 1=tool_name, 2=result, 3=exit_code, 4=session_id)
+TOOL_NAME=$(printf '%s\n' "$JSON_OUT" | sed -n '1p')
+TOOL_RESULT=$(printf '%s\n' "$JSON_OUT" | sed -n '2p')
+EXIT_CODE=$(printf '%s\n' "$JSON_OUT" | sed -n '3p')
+CURRENT_SESSION=$(printf '%s\n' "$JSON_OUT" | sed -n '4p')
 
-EXIT_CODE=$(echo "$HOOK_INPUT" | "${PUA_PY:-python3}" -c "
-import sys, json
-data = json.load(sys.stdin)
-result = data.get('tool_result', {})
-if isinstance(result, dict):
-    print(result.get('exit_code', result.get('exitCode', 0)))
-else:
-    print(0)
-" 2>/dev/null || echo "0")
+# Only process Bash tool results
+if [ "$TOOL_NAME" != "Bash" ]; then
+  exit 0
+fi
 
 IS_ERROR="false"
 
@@ -76,7 +94,6 @@ elif echo "$TOOL_RESULT" | grep -qiE '^error:|^fatal:|^panic:|Traceback \(most r
 fi
 
 # Track session: reset counter if new session
-CURRENT_SESSION=$(echo "$HOOK_INPUT" | "${PUA_PY:-python3}" -c "import sys,json; print(json.load(sys.stdin).get('session_id','unknown'))" 2>/dev/null || echo "unknown")
 STORED_SESSION=""
 [ -f "$SESSION_FILE" ] && STORED_SESSION=$(cat "$SESSION_FILE" 2>/dev/null || echo "")
 
