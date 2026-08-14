@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cross-platform packaging gates for Trae + pi.dev adapters.
+# Cross-platform packaging gates for Codex + pi.dev adapters.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -17,11 +17,11 @@ import json, pathlib, re, sys
 root = pathlib.Path(sys.argv[1])
 errors = []
 
-# Trae must be a real SKILL.md pack, not only pasteable rules.
+# Codex must be a real SKILL.md pack, not only pasteable rules.
 for rel, expected_name in [
-    ('.trae/skills/pua/SKILL.md', 'pua'),
-    ('.trae/skills/pua-en/SKILL.md', 'pua-en'),
-    ('.trae/skills/pua-trae/SKILL.md', 'pua-trae'),
+    ('.codex/skills/pua/SKILL.md', 'pua'),
+    ('.codex/skills/pua-en/SKILL.md', 'pua-en'),
+    ('.codex/skills/pua-codex/SKILL.md', 'pua-codex'),
 ]:
     path = root / rel
     if not path.exists():
@@ -39,23 +39,23 @@ for rel, expected_name in [
     body = text.split('---', 2)[2]
     for term in ['行动权', '自我评价权', '评分权', '环境修改权', 'PUA-DIAGNOSIS', '事实上的 100%', '文化叙事']:
         if term not in body:
-            errors.append(f'{rel} missing Trae governance/culture term: {term}')
+            errors.append(f'{rel} missing Codex governance/culture term: {term}')
 
-# Trae documentation must tell users both marketplace/CLI and manual paths.
-install = (root / 'trae/INSTALL.md').read_text(encoding='utf-8')
-for term in ['npx skills add', '--skill pua-trae', '-a trae', '~/.trae/skills/', '~/.trae-cn/skills/', '.trae/skills/']:
+# Codex documentation must tell users both marketplace/CLI and manual paths.
+install = (root / 'codex/INSTALL.md').read_text(encoding='utf-8')
+for term in ['npx skills add', '--skill pua-codex', '-a codex', '~/.codex/skills/', '~/.codex-cn/skills/', '.codex/skills/']:
     if term not in install:
-        errors.append(f'trae install guide missing {term}')
+        errors.append(f'codex install guide missing {term}')
 
-# Difference doc makes the Claude Code vs Trae boundary explicit.
-diff = root / 'trae/DIFF.md'
+# Difference doc makes the Claude Code vs Codex boundary explicit.
+diff = root / 'codex/DIFF.md'
 if not diff.exists():
-    errors.append('missing trae/DIFF.md')
+    errors.append('missing codex/DIFF.md')
 else:
     diff_text = diff.read_text(encoding='utf-8')
-    for term in ['Claude Code', 'Trae', 'hooks', 'commands', 'agents', 'SKILL.md', 'npx skills']:
+    for term in ['Claude Code', 'Codex', 'hooks', 'commands', 'agents', 'SKILL.md', 'npx skills']:
         if term not in diff_text:
-            errors.append(f'trae diff missing {term}')
+            errors.append(f'codex diff missing {term}')
 
 # pi.dev package must use official package manifest shape.
 pkg_path = root / 'pi/package/package.json'
@@ -88,7 +88,7 @@ PY
 }
 
 echo "=== Platform Compatibility Gates ==="
-python_check && pass "Trae + pi.dev package structure is valid" || fail "Trae + pi.dev package structure is valid"
+python_check && pass "Codex + pi.dev package structure is valid" || fail "Codex + pi.dev package structure is valid"
 
 if [ -f "$ROOT/pi/package/package.json" ]; then
   (cd "$ROOT/pi/package" && npm pack --dry-run --json >/tmp/pua-pi-pack.json) && pass "pi package can be packed by npm" || fail "pi package can be packed by npm"
