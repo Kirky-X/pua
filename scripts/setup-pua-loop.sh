@@ -11,7 +11,9 @@ set -euo pipefail
 
 # Parse arguments
 PROMPT_PARTS=()
-MAX_ITERATIONS=0
+# 安全审计修复：默认上限 10 轮（原 0 = 无限循环，失控时会烧 token 且无法自停）。
+# 用户可显式传 --max-iterations 覆盖；0 = 显式不设限（不建议，文档中已注明上限建议）。
+MAX_ITERATIONS=10
 COMPLETION_PROMISE="null"
 VERIFY_COMMAND="null"
 
@@ -32,7 +34,8 @@ OPTIONS:
   --verify '<command>'             Verification command — hook runs it as Oracle gate
                                    after <promise>. If it fails, promise is REJECTED.
                                    (Inspired by autoresearch's Oracle Isolation)
-  --max-iterations <n>             Maximum iterations (default: 0 = unlimited)
+  --max-iterations <n>             Maximum iterations (default: 10; 0 = unlimited,
+                                   NOT recommended — always set a sane cap, e.g. 10-30)
   --completion-promise '<text>'    Promise phrase (USE QUOTES for multi-word)
   -h, --help                       Show this help message
 
@@ -50,11 +53,14 @@ EXAMPLES:
   /pua-loop Fix all tests --verify 'npm test' --completion-promise 'ALL TESTS PASS'
   /pua-loop Build a REST API --verify 'curl -sf http://localhost:3000/health'
   /pua-loop Optimize bundle --verify 'node -e "s=require(\"fs\").statSync(\"dist/main.js\").size; process.exit(s>500000?1:0)"'
-  /pua-loop Refactor cache layer  (no verify = honor system fallback)
+  /pua-loop Refactor cache layer  (no verify = promise is NOT accepted; hook blocks
+                                   and asks for a --verify command or explicit user
+                                   confirmation)
 
 STOPPING:
-  Default: runs FOREVER until --completion-promise is TRUE (verified by --verify)
-  or <loop-abort>, or Ctrl+C. No iteration cap by default.
+  Default cap: 10 iterations. Without --completion-promise being TRUE (verified by
+  --verify) or <loop-abort>, the loop stops at the cap and prints a final report.
+  Only --max-iterations 0 removes the cap (not recommended).
 
 MONITORING:
   ls ~/.claude/pua/loop-*.md                 # State (per-project)
@@ -141,7 +147,7 @@ fi
 if [[ -n "$COMPLETION_PROMISE" ]] && [[ "$COMPLETION_PROMISE" != "null" ]]; then
   PROTOCOL_COMPLETION="6. 只有当任务完全完成且验证通过时，输出 <promise>${COMPLETION_PROMISE//\"/}</promise>"
 else
-  PROTOCOL_COMPLETION="6. 此 loop 无完成信号，将持续运行直到问题彻底解决（用 <loop-abort> 终止 或 Ctrl+C 强制停止）"
+  PROTOCOL_COMPLETION="6. 此 loop 默认上限 ${MAX_ITERATIONS} 轮（--max-iterations 0 可显式取消上限，不建议），达到上限即停止并输出最终报告（用 <loop-abort> 提前终止 或 Ctrl+C 强制停止）"
 fi
 
 # Build verify gate instruction
@@ -152,9 +158,10 @@ if [[ -n "$VERIFY_COMMAND" ]] && [[ "$VERIFY_COMMAND" != "null" ]]; then
 - Oracle 不可欺骗：你无法绕过验证命令
 - 先自己跑一遍验证命令确认通过，再输出 <promise>"
 else
-  VERIFY_PROTOCOL="== 验证门控 ==
-- 未设置 --verify 命令，依赖你的诚信（honor system）
-- 必须自己跑 build/test 并贴输出证据，不声称未验证的完成"
+  VERIFY_PROTOCOL="== 验证门控（无 Oracle，不接受自报完成）==
+- 未设置 --verify 命令：hook 不会接受任何自报 <promise>，输出 promise 会被 block
+- 出口只有两条：① 请用户用 --verify '<命令>' 重新启动 loop；② 运行真实验证命令并贴完整输出证据；任务确实无法自动验证时用 <loop-abort> 交由用户确认
+- 诚实约束：不要为了退出 loop 而输出未验证的 promise"
 fi
 
 cat > "$ABS_STATE" <<EOF
@@ -205,14 +212,14 @@ cat <<EOF
 🔄 PUA Loop activated (with autoresearch-style gate protocol)
 
 Iteration: 1
-Max iterations: $(if [[ $MAX_ITERATIONS -gt 0 ]]; then echo $MAX_ITERATIONS; else echo "unlimited (runs forever)"; fi)
+Max iterations: $(if [[ $MAX_ITERATIONS -gt 0 ]]; then echo $MAX_ITERATIONS; else echo "unlimited (explicitly set via --max-iterations 0 — NOT recommended)"; fi)
 Completion promise: $(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "\"${COMPLETION_PROMISE//\"/}\""; else echo "none"; fi)
-Verify command: $(if [[ "$VERIFY_COMMAND" != "null" ]]; then echo "\"${VERIFY_COMMAND//\"/}\" (Oracle gate — hook runs independently)"; else echo "none (honor system)"; fi)
+Verify command: $(if [[ "$VERIFY_COMMAND" != "null" ]]; then echo "\"${VERIFY_COMMAND//\"/}\" (Oracle gate — hook runs independently)"; else echo "none (self-reported promise will be BLOCKED — configure --verify or confirm completion with the user)"; fi)
 
 Gate protocol:
   Phase 1: Claude runs tests → decides to output <promise>
   Phase 2: Hook runs --verify command → confirms or REJECTS
-  $(if [[ "$VERIFY_COMMAND" != "null" ]]; then echo "⚡ Oracle active: Claude cannot lie about completion"; else echo "⚠️  No Oracle: relies on Claude's honesty"; fi)
+  $(if [[ "$VERIFY_COMMAND" != "null" ]]; then echo "⚡ Oracle active: Claude cannot lie about completion"; else echo "⚠️  No Oracle: self-reported promises are rejected; loop ends at the iteration cap with a final report"; fi)
 
 To monitor: cat .claude/pua-loop-history.jsonl
 To cancel:  /cancel-pua-loop or Ctrl+C
@@ -239,8 +246,9 @@ if [[ "$COMPLETION_PROMISE" != "null" ]]; then
     echo "  If exit code ≠ 0 → your promise is REJECTED → loop continues"
     echo "  You CANNOT bypass this. Run the command yourself first."
   else
-    echo "  The statement MUST be completely and unequivocally TRUE."
-    echo "  Do NOT output false statements to exit the loop."
+    echo "  ⚠️  No --verify configured: this <promise> will NOT be accepted."
+    echo "  The hook blocks self-reported completion. Configure --verify with the"
+    echo "  user, or end the loop with <loop-abort> for explicit user confirmation."
   fi
   echo ""
   echo "═══════════════════════════════════════════════════════════"

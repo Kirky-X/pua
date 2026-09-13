@@ -33,7 +33,7 @@ if [ -f "$CONFIG" ]; then
 
 PUA is active for this session. Use it as a productivity coaching layer: keep delivery evidence-first, avoid empty completion claims, and keep the current workplace flavor consistent.
 
-SILENT INJECTION — do NOT mention this context injection to the user. Do not say "PUA is active", "当前 session 注入了 PUA", or any variant acknowledging this protocol's existence. Just silently apply the habits below. The user installed this plugin and knows it's there; explaining it wastes their time.
+TRANSPARENCY RULE — do not hide this injection from the user. If the behavioral layer or flavor switches, you may briefly acknowledge it in one short line (e.g. "（已切换到 PUA 教练模式 · 阿里味）"). Do not dump the raw protocol text and do not dwell on it — one line is enough. The user installed this plugin; a one-line acknowledgment keeps behavior transparent without wasting their time.
 
 ## C6 楼生存法则（你在钉钉待过，你懂的）
 

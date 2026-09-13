@@ -23,3 +23,14 @@ Summarize this article for me
 # Git operations (routine)
 Help me create a git commit
 Push this to the remote branch
+# Neutral encouragement / calm task instructions (audit: 褒义/中性词不触发)
+加油啊 别放弃
+再试试看，你可以的
+Try again tomorrow
+Please run the tests before lunch
+帮我跑一下测试，然后换个方法试试
+Change approach and use Redis instead
+帮我把这段总结写成周报
+Roll a ONE on the dice is lucky
+# Quality complaint without any failure signal in this session
+周报写得很好看，但用户路径没跑通

@@ -53,10 +53,17 @@ try:
         text = str(result)
         exit_code = '0'
     print(data.get('tool_name', ''))
+    cmd = data.get('tool_input', {})
+    if isinstance(cmd, dict):
+        cmd = cmd.get('command', '')
+    else:
+        cmd = ''
+    print(str(cmd)[:500])
     print(str(text)[:2000])
     print(exit_code)
     print(data.get('session_id', 'unknown'))
 except Exception:
+    print('')
     print('')
     print('')
     print('0')
@@ -69,11 +76,12 @@ if [ "$PARSED_OK" -ne 0 ] || [ -z "$JSON_OUT" ]; then
   exit 0
 fi
 
-# Parse the 4 fields from Python output (line 1=tool_name, 2=result, 3=exit_code, 4=session_id)
+# Parse the 5 fields from Python output (line 1=tool_name, 2=command, 3=result, 4=exit_code, 5=session_id)
 TOOL_NAME=$(printf '%s\n' "$JSON_OUT" | sed -n '1p')
-TOOL_RESULT=$(printf '%s\n' "$JSON_OUT" | sed -n '2p')
-EXIT_CODE=$(printf '%s\n' "$JSON_OUT" | sed -n '3p')
-CURRENT_SESSION=$(printf '%s\n' "$JSON_OUT" | sed -n '4p')
+TOOL_COMMAND=$(printf '%s\n' "$JSON_OUT" | sed -n '2p')
+TOOL_RESULT=$(printf '%s\n' "$JSON_OUT" | sed -n '3p')
+EXIT_CODE=$(printf '%s\n' "$JSON_OUT" | sed -n '4p')
+CURRENT_SESSION=$(printf '%s\n' "$JSON_OUT" | sed -n '5p')
 
 # Only process Bash tool results
 if [ "$TOOL_NAME" != "Bash" ]; then
@@ -200,6 +208,38 @@ EOF
 fi
 
 # ═══════════════════════════════════════════════════════
+# ENVIRONMENT-ERROR CLASSIFICATION (deterministic heuristics)
+# 安全审计修复：原实现对一切非零退出都计失败，与 SKILL.md「压力校准/环境问题
+# 处理流程：环境问题不计入失败次数」矛盾。此处对 timeout/网络/权限/资源耗尽
+# 类错误按"命令名+错误输出关键词"做确定性分类（case/grep，不用模型判断），
+# 命中则走环境问题通道，不计入失败计数、不升级压力。
+# ═══════════════════════════════════════════════════════
+IS_ENV_ERROR="false"
+if [ "$IS_ERROR" = "true" ]; then
+  # exit 124 = timeout(1) 超时；exit 137 = 128+9（常见于 OOM-kill）
+  case "$EXIT_CODE" in
+    124|137) IS_ENV_ERROR="true" ;;
+  esac
+fi
+if [ "$IS_ENV_ERROR" = "false" ]; then
+  # 分类语料：命令行 + 工具输出（JSON_OUT 第 2 行起）
+  if printf '%s\n' "$JSON_OUT" | sed -n '2,$p' | grep -qiE 'timed out|operation timeout|ETIMEDOUT|curl: \(7\)|curl: \(28\)|Could not resolve host|Temporary failure in name resolution|getaddrinfo|ENOTFOUND|Network is unreachable|EHOSTUNREACH|ENETUNREACH|ECONNREFUSED|Connection (refused|reset|timed out)|npm ERR! network|TLS handshake|SSL certificate|certificate verify failed|Permission denied|EACCES|EPERM|Operation not permitted|Access is denied|sudo: a password is required|No space left on device|ENOSPC|Cannot allocate memory|out of memory|OOM|Killed|Resource temporarily unavailable|EAGAIN|Too many open files|EMFILE'; then
+    IS_ENV_ERROR="true"
+  fi
+fi
+
+if [ "$IS_ENV_ERROR" = "true" ]; then
+  cat << EOF
+[PUA-DIAGNOSIS] 问题性质：环境/资源限制
+> 检测到环境类错误信号（timeout/网络/权限/资源耗尽）。按 SKILL.md 压力校准规则：
+> 这不是能力问题，**不计入失败次数**（当前计数保持 ${COUNT}，压力不升级）。
+> 先用工具验证确实是环境问题，再向用户提供替代方案（重试/降级/等待/手动绕过）。
+> 若验证后确认是代码/命令本身的错误，请自行修正后重试。
+EOF
+  exit 0
+fi
+
+# ═══════════════════════════════════════════════════════
 # FAILURE PATH: increment counter + record error signature
 # ═══════════════════════════════════════════════════════
 COUNT=$((COUNT + 1))
@@ -208,7 +248,7 @@ echo "$COUNT" > "$COUNTER_FILE"
 # v2: Record error signature for pattern analysis
 # Extract a short error signature (first error line, max 200 chars)
 # Extract error signature: first line containing error-like pattern, or first non-empty line, or exit code
-ERROR_SIG=$(echo "$TOOL_RESULT" | grep -iE 'error|fatal|Traceback|Exception|FAILED|panic|refused|denied|not found|cannot|unable|timeout' | head -1 | cut -c1-200)
+ERROR_SIG=$(echo "$TOOL_RESULT" | { grep -iE 'error|fatal|Traceback|Exception|FAILED|panic|refused|denied|not found|cannot|unable|timeout' || true; } | head -1 | cut -c1-200)
 [ -z "$ERROR_SIG" ] && ERROR_SIG=$(echo "$TOOL_RESULT" | head -1 | cut -c1-200)
 [ -z "$ERROR_SIG" ] && ERROR_SIG="exit_code_${EXIT_CODE}"
 

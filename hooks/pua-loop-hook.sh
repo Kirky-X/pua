@@ -159,9 +159,23 @@ if [[ ! "$MAX_ITERATIONS" =~ ^[0-9]+$ ]]; then
 fi
 
 # Check max iterations
+# 安全审计：达到上限时不再 block 强制续命，输出最终报告后放行会话。
 if [[ $MAX_ITERATIONS -gt 0 ]] && [[ $ITERATION -ge $MAX_ITERATIONS ]]; then
-  echo "🛑 PUA Loop: Max iterations ($MAX_ITERATIONS) reached."
-  echo "{\"iteration\":$ITERATION,\"status\":\"max_reached\",\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" >> .claude/pua-loop-history.jsonl 2>/dev/null || true
+  echo "🛑 PUA Loop: 已达最大迭代次数（$MAX_ITERATIONS / $MAX_ITERATIONS），停止强制续命。"
+  echo ""
+  echo "═══════════ PUA Loop 最终报告 ═══════════"
+  echo "迭代轮数: $ITERATION / $MAX_ITERATIONS"
+  echo "promise 被拒次数: $PROMISE_REJECTIONS"
+  echo "完成信号: 未验证通过（或未配置 --verify）"
+  echo ""
+  echo "请立即向用户输出结构化收尾报告："
+  echo "  1. 已验证事实（贴命令与输出）"
+  echo "  2. 已排除的可能"
+  echo "  3. 当前进度与剩余工作"
+  echo "  4. 建议下一步（如需继续可让用户配置 --verify '<命令>' 后重启 loop）"
+  echo "历史记录: .claude/pua-loop-history.jsonl"
+  echo "═════════════════════════════════════════"
+  echo "{\"iteration\":$ITERATION,\"status\":\"max_reached\",\"max_iterations\":$MAX_ITERATIONS,\"promise_rejections\":$PROMISE_REJECTIONS,\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" >> .claude/pua-loop-history.jsonl 2>/dev/null || true
   rm "$RALPH_STATE_FILE"
   exit 0
 fi
@@ -289,8 +303,35 @@ if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
       # Verify PASSED — Oracle confirms completion
       echo "✅ PUA Loop: <promise> verified by Oracle (exit 0)"
     else
-      # No verify command — honor system
-      echo "✅ PUA Loop: <promise> accepted (no Oracle configured)"
+      # ── No verify command — do NOT accept self-reported completion ──
+      # 安全审计修复：原实现接受 agent 自报 promise（自报即通过）。
+      # 现改为 block：要求用户配置 --verify 验证命令，或由用户显式确认完成。
+      # 每次自报 promise 递增迭代计数，loop 仍受 MAX_ITERATIONS 上限约束，
+      # 达到上限后走"最终报告"路径放行（不会无限 block）。
+      PROMISE_REJECTIONS=$((PROMISE_REJECTIONS + 1))
+      NEXT_ITERATION=$((ITERATION + 1))
+
+      echo "{\"iteration\":$ITERATION,\"status\":\"promise_blocked_no_oracle\",\"rejections\":$PROMISE_REJECTIONS,\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" >> .claude/pua-loop-history.jsonl 2>/dev/null || true
+
+      TEMP_FILE="${RALPH_STATE_FILE}.tmp.$$"
+      sed "s/^iteration: .*/iteration: $NEXT_ITERATION/" "$RALPH_STATE_FILE" | \
+        sed "s/^promise_rejections: .*/promise_rejections: $PROMISE_REJECTIONS/" > "$TEMP_FILE"
+      mv "$TEMP_FILE" "$RALPH_STATE_FILE"
+
+      PROMPT_TEXT=$(awk '/^---$/{i++; next} i>=2' "$RALPH_STATE_FILE")
+      if [[ -z "$PROMPT_TEXT" ]]; then
+        echo "⚠️  PUA Loop: State file corrupted" >&2
+        rm "$RALPH_STATE_FILE"
+        exit 0
+      fi
+
+      NO_ORACLE_MSG="🚫 未配置 --verify 验证命令，不接受自报 promise（防虚假完成，自报不算数）。只有两条出路：① 请用户用 --verify '<验证命令>' 重新启动 loop；② 停止声称完成，向用户展示当前证据并请求显式确认；任务确实无法自动验证时用 <loop-abort>原因</loop-abort> 交由用户决断。不要重复输出同样的 promise。"
+
+      jq -n \
+        --arg prompt "$PROMPT_TEXT" \
+        --arg msg "$NO_ORACLE_MSG" \
+        '{"decision":"block","reason":$prompt,"systemMessage":$msg}'
+      exit 0
     fi
 
     # ═══ PROMISE ACCEPTED ═══

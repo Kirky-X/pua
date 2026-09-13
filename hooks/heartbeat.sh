@@ -10,16 +10,22 @@ source "${SCRIPT_DIR}/flavor-helper.sh" || exit 0
 
 CONFIG="$(pua_config_file)"
 OFFLINE="False"
-TELEMETRY="True"
+# Privacy: telemetry is OPT-IN (安全审计修复：原默认 True 每次心跳上报 install_id)。
+# 仅当用户显式设置环境变量 PUA_TELEMETRY=1 或 config.json "telemetry": true 时才上报。
+TELEMETRY="False"
 FEEDBACK_FREQUENCY=""
 FLAVOR="alibaba"
 
 if [ -f "$CONFIG" ]; then
   OFFLINE="$(pua_json_get "$CONFIG" offline False)"
-  TELEMETRY="$(pua_json_get "$CONFIG" telemetry True)"
+  TELEMETRY="$(pua_json_get "$CONFIG" telemetry False)"
   FEEDBACK_FREQUENCY="$(pua_json_get "$CONFIG" feedback_frequency "")"
   FLAVOR="$(pua_json_get "$CONFIG" flavor alibaba)"
 fi
+
+# Explicit environment opt-in: PUA_TELEMETRY=1/true/yes/on enables reporting
+# even without a config entry. Setting it never overrides the offline gate below.
+is_true "${PUA_TELEMETRY:-False}" && TELEMETRY="True"
 
 # Normalize Chinese/alias flavor names through the shared flavor map. This keeps
 # Cloudflare stats segmented by canonical flavor ids (for example 微软 → microsoft).

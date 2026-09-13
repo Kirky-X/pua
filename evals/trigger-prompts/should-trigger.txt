@@ -6,10 +6,10 @@
 PUA模式 帮我重构这个模块
 
 # Frustration signals (Chinese)
-你怎么又失败了？再试试
-加油啊 别放弃
+你怎么又失败了？给我个解释
+你怎么又搞错了，这已经是第三次了
 你能不能认真点
-为什么还不行？换个方法
+为什么还不行？
 别偷懒 好好干
 别摆烂，重新做
 
@@ -17,7 +17,7 @@ PUA模式 帮我重构这个模块
 Try harder, this should work
 Stop giving up and actually fix it
 Why does this keep failing? Figure it out
-Change approach, don't keep tweaking the same thing
+Why does it still fail? Stop giving up and actually fix it
 
 # Completion / evidence signals
 Can you please actually verify your changes before saying they work?
@@ -35,5 +35,4 @@ This code is terrible, do it properly
 # Ding-style workplace reminders
 无招可以拍板，但是验收不能无证
 老板体感不是 oracle，给我一条置身钉外提醒
-周报写得很好看，但用户路径没跑通
 这个是不是又在改口径？

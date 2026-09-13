@@ -259,18 +259,27 @@ except Exception:
         print(f'{v}={b64(\"\")}')
 " "$raw_flavor" "$flavors_json" "$zh_flag" 2>/dev/null || echo "")
 
-  # Decode base64 values into shell variables
+  # Decode base64 values into shell variables.
+  # 安全审计修复：原实现把解码结果拼成 shell 语句再 eval（构造的 flavors.json
+  # 可注入任意命令）。现改为：白名单键名逐个 case 赋值，解码值只作为普通
+  # 字符串数据使用，绝不作为 shell 代码求值。
+  PUA_ICON="" PUA_L1="" PUA_L2="" PUA_L3="" PUA_L4=""
+  PUA_KEYWORDS="" PUA_FLAVOR_INSTRUCTION="" PUA_METHODOLOGY=""
   if [ -n "$_flavor_vars" ]; then
-    eval "$(echo "$_flavor_vars" | while IFS='=' read -r key b64val; do
+    while IFS='=' read -r key b64val; do
       [ -z "$key" ] && continue
-      decoded=$(echo "$b64val" | base64 -d 2>/dev/null || echo "")
-      # Shell-escape single quotes in decoded value
-      escaped=$(printf '%s' "$decoded" | sed "s/'/'\\\\''/g")
-      printf "%s='%s'\n" "$key" "$escaped"
-    done)"
-  else
-    # Fallback: empty values (Python unavailable or JSON missing)
-    PUA_ICON="" PUA_L1="" PUA_L2="" PUA_L3="" PUA_L4=""
-    PUA_KEYWORDS="" PUA_FLAVOR_INSTRUCTION="" PUA_METHODOLOGY=""
+      decoded="$(printf '%s' "$b64val" | base64 -d 2>/dev/null || printf '')"
+      case "$key" in
+        PUA_ICON)               PUA_ICON="$decoded" ;;
+        PUA_L1)                 PUA_L1="$decoded" ;;
+        PUA_L2)                 PUA_L2="$decoded" ;;
+        PUA_L3)                 PUA_L3="$decoded" ;;
+        PUA_L4)                 PUA_L4="$decoded" ;;
+        PUA_KEYWORDS)           PUA_KEYWORDS="$decoded" ;;
+        PUA_FLAVOR_INSTRUCTION) PUA_FLAVOR_INSTRUCTION="$decoded" ;;
+        PUA_METHODOLOGY)        PUA_METHODOLOGY="$decoded" ;;
+        *) : ;; # 不在白名单内的键一律丢弃
+      esac
+    done <<< "$_flavor_vars"
   fi
 }

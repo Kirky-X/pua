@@ -62,12 +62,12 @@ Git revert 会撤代码，但 history.jsonl 不受影响。Claude 每轮读取�
 | 3-4 | REASSESS："重读验证输出，列 3 个不同假设" |
 | 5+ | 强制转向："你在解决错误的问题。退回需求本身" |
 
-### 模式 5: 无限迭代
+### 模式 5: 迭代上限（默认 10 轮）
 
-默认 `max_iterations: 0`（无限）。没有人为上限。循环永远不会因为"跑了太多轮"而停止——只有以下条件能终止：
+默认 `max_iterations: 10`（安全上限，防止无限循环失控）。用户可显式传 `--max-iterations <n>` 覆盖，建议 10-30；`0` = 显式取消上限（不建议——没有终点的 loop 只会烧 token）。循环在以下条件终止：
 1. `<promise>` 被 Oracle 验证通过
 2. `<loop-abort>` 人工终止信号
-3. `max_iterations` 达到（如果用户设定了）
+3. `max_iterations` 达到（默认 10；达到后不再 block 强制续命，输出最终报告）
 4. 用户 Ctrl+C
 
 ## 核心规则
@@ -94,13 +94,13 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup-pua-loop.sh" "$ARGUMENTS" --completion
 - 用户说 "Build a REST API" → `--verify 'curl -sf http://localhost:3000/health'`
 - 用户说 "Optimize bundle size" → 无明确 verify，不追加
 
-如果任务描述中能推断出验证命令，主动追加 `--verify`。如果不确定，不追加（退回 honor system）。
+如果任务描述中能推断出验证命令，主动追加 `--verify`。如果不确定，先向用户要一个验证命令；用户给不出时可不追加，但要知道：**无 --verify 时 hook 不接受自报 promise**（会 block 并要求配置验证命令或由用户显式确认），loop 到默认 10 轮上限即停止并输出最终报告。
 
 ### Step 2: 告知用户
 
 输出：
 ```
-▎ [PUA Loop] 自动迭代模式启动。无上限，跑到 Oracle 验证通过为止。
+▎ [PUA Loop] 自动迭代模式启动。默认上限 10 轮，跑到 Oracle 验证通过或达上限为止。
 ▎ 完成条件：<promise>LOOP_DONE</promise>（Oracle 独立验证）
 ▎ 取消方式：Ctrl+C / /cancel-pua-loop
 ▎ 因为信任所以简单——但 Oracle 不信任你。
@@ -158,5 +158,5 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup-pua-loop.sh" "$ARGUMENTS" --completion
 | 失败记忆 | results.tsv | pua-loop-history.jsonl（ASI 模式） |
 | Stall 检测 | 无 | promise_rejections 计数 + 强制 REASSESS |
 | 回滚 | git reset --hard | PUA 方法论切换（不回滚，换方向） |
-| 终止 | NEVER STOP | NEVER STOP（Oracle 验证通过除外） |
+| 终止 | NEVER STOP | 默认上限 10 轮（Oracle 验证通过 / `<loop-abort>` / 达上限均可终止） |
 | 质量引擎 | 无 | PUA 三条红线 + 压力升级 |
