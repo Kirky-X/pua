@@ -1,139 +1,84 @@
-# PUA — Make AI Agents Too Scared to Be Lazy
+# PUA — We Don't Keep Idle Agents
 
-[中文](README.md)
+> A coaching skill that drives AI agents with big-tech performance-culture rhetoric to exhaust every option and close the loop with evidence. Comes with failure escalation, methodology routing, and gated loops. Calm first requests don't trigger it; telemetry is off by default.
 
-[![GitHub Release](https://img.shields.io/github/v/release/Kirky-X/pua?style=flat-square)](https://github.com/Kirky-X/pua/releases) [![GitHub License](https://img.shields.io/github/license/Kirky-X/pua?style=flat-square)](LICENSE)
+[![Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2FKirky-X%2Fpua%2Fmain%2Fskill.json&query=%24.version&label=version&style=flat-square)](https://github.com/Kirky-X/pua/releases) [![GitHub Release](https://img.shields.io/github/v/release/Kirky-X/pua?style=flat-square)](https://github.com/Kirky-X/pua/releases) [![GitHub License](https://img.shields.io/github/license/Kirky-X/pua?style=flat-square)](LICENSE)
 
-> Forked from [tanweai/pua](https://github.com/tanweai/pua), maintained and customized here.
+English | [中文](README.md)
 
-An AI Coding Agent skill plugin that uses corporate PUA rhetoric (Chinese) / PIP — Performance Improvement Plan (English) from Chinese & Western tech giants to force AI to exhaust every possible solution before giving up. Supports **Claude Code**, **OpenAI Codex CLI**, **Trae**, **Cursor**, **Kiro**, **CodeBuddy**, **OpenClaw**, **Google Antigravity**, **OpenCode**, and **VSCode (GitHub Copilot)**. Three capabilities:
+Three capabilities: **PUA rhetoric** so the AI won't give up lightly; **debugging methodology** so the AI is actually able to keep going; **proactivity coaching** so the AI acts instead of waiting.
 
-1. **PUA Rhetoric** — Makes AI afraid to give up
-2. **Debugging Methodology** — Gives AI the ability not to give up
-3. **Proactivity Enforcement** — Makes AI take initiative instead of waiting passively
+## ✨ Features
 
-## Installation
+- **Trigger gating (Step 0)**: activates only when the user expresses frustration, repeated failure, quality complaints, passive behavior, or hits a trigger phrase; calm first requests don't trigger; the scenario blacklist lives in `references/execution-protocol.md`. 46 regex trigger cases tested, 46/46 passing.
+- **15 big-tech flavors**: Alibaba / ByteDance / Huawei / Tencent / Baidu / Pinduoduo / Meituan / JD / Xiaomi / Netflix / Musk / Jobs / Amazon / Microsoft / Ding, each bound to a dedicated methodology; tasks are auto-routed by type (Debug→Huawei RCA, new features→Musk Algorithm, code review→Jobs subtraction, etc.); a user config setting takes priority.
+- **L0-L4 pressure escalation**: failures 1-5+ escalate level by level (trust → disappointment → soul-searching → perf review → graduation warning); L2 forces search + source reading + 3 hypotheses; L4 forces a flavor switch; failure-pattern analysis distinguishes SPINNING / EXPLORING / MIXED.
+- **Three red lines**: closure awareness (claims of done require pasted verification output), fact-driven (verify before attributing), exhaust everything (finish the 5-step methodology before declaring "can't").
+- **pua-loop gated iteration**: `verify_command` is set by the user at launch, embedded in the state file, and unmodifiable by the agent (Oracle isolation); default cap of 10 iterations, overridable via `--max-iterations`.
+- **11 sub-skills + 22 commands**: `/pua:pro` (self-evolution), `/pua:p7` / `p9` / `p10` (backbone / Tech Lead / CTO), `/pua:yes` (praise mode), `/pua:mama` (mom-nagging), `/pua:ding` (Ding flavor), `/pua:pua-loop` (auto-iteration), `/pua:pua-en` / `pua-ja` (EN / JA editions); commands like `/pua:flavor`, `/pua:again`, `/pua:done-check`, `/pua:evidence`, `/pua:kpi`.
+- **Safety & privacy (post-2026-09 fixes)**: telemetry is off by default and requires explicit `PUA_TELEMETRY=1` or config `"telemetry": true` (never reported in `offline` mode); remote responses are treated as untrusted display data — they must be shown in full and explicitly confirmed by the user item by item before becoming actions; there is no "silent execution" path.
+- **Hook system**: 11 hook scripts (frustration-trigger / failure-detector / heartbeat / pua-loop-hook / session-restore / integrity-guard, etc.); failure counts persist across context compaction.
 
-### Option 1: Via `skills` package (recommended)
-
-Requires [Node.js](https://nodejs.org/) 18+ and `skills` npm package (v1.5.12+). `skills` is the CLI for the open agent skills ecosystem, supporting 68+ agents (Claude Code / Trae / Cursor / Codex / OpenCode etc.).
+## 📦 Installation
 
 ```bash
-# Install English version (PIP Edition)
-npx skills add Kirky-X/pua --skill pua-en --agent claude-code -y
+# Option 1: deploy from this workspace (to ~/.zcode/skills and ~/.claude/skills)
+bash scripts/sync-skills.sh pua
 
-# Install Chinese version (default)
+# Option 2: manual copy into the ZCode skills directory
+cp -r /path/to/pua ~/.zcode/skills/pua
+
+# Option 3: remote install from GitHub; pick --skill pua-en for the English PIP Edition
 npx skills add Kirky-X/pua --agent claude-code -y
-
-# Install to Trae
-npx skills add Kirky-X/pua --skill pua-en --agent trae -y
-
-# List discoverable skills (without installing)
-npx skills add Kirky-X/pua --list
 ```
 
-After installation, skill files are in the agent's skills directory (e.g. `.claude/skills/pua/`).
+## 🚀 Quick Start
 
-### Option 2: Traditional git clone
+Prerequisite: the skill is loaded by the agent. As a behavior-layer skill it needs no explicit startup — it activates when trigger conditions are met.
 
-```bash
-git clone https://github.com/Kirky-X/pua.git
-# Link or copy SKILL.md + references/ + commands/ to agent skills directory
-# Runtime skills directory examples (pick one):
-#   Claude Code:  ~/.claude/skills/pua/
-#   Trae:         ~/.trae-cn/skills/pua/
-#   Cursor:       ~/.cursor/skills/pua/
-#   Codex:        ~/.codex/skills/pua/
+```text
+"It failed again, third time"      # Frustration signal → auto-activates, escalates with failure count
+/pua:flavor                        # Switch among 15 big-tech flavors (Alibaba by default)
+/pua:pua-loop fix all lint --verify "npm run lint"   # Gated loop: 10-iteration default cap
+"Enough, turn off PUA"             # One of the exit conditions — pressure stops immediately
 ```
 
-## Usage
+Debug scenarios auto-route to the Huawei flavor (RCA + red team), deployment to Alibaba (closure), etc. When spawning sub-agents, inject behavior by having them Read this skill's SKILL.md directly — do not load it via the Skill tool (avoids router loops).
 
-PUA activates via natural language intent matching when loaded as a skill — no explicit commands needed. See [SKILL.md](SKILL.md) for the full routing table.
+## ✅ Tests & Verification
 
-| Command | Description |
-| ------- | ----------- |
-| `/pua:pua` | Core PUA engine (Alibaba flavor default) |
-| `/pua:p7` | P7 Senior Engineer — solution-driven execution |
-| `/pua:p9` | P9 Tech Lead — write prompts, manage agents |
-| `/pua:p10` | P10 CTO — strategic direction |
-| `/pua:pro` | Self-evolution + KPI + rank system |
-| `/pua:yes` | ENFP encouragement mode (same rules, opposite vibes) |
-| `/pua:mama` | Chinese mom nagging mode |
-| `/pua:ding` | Ding flavor — evidence chain + closure |
-| `/pua:pua-loop` | Auto-iteration (PUA pressure × iterative loop) |
-| `/pua:flavor` | Switch between 15 corporate flavors |
-| `/pua:again` | Retry with a fundamentally different approach |
-| `/pua:done-check` | Delivery verification — no proof, not done |
-| `/pua:evidence` | Evidence chain — where's the data? |
-| `/pua:kpi` | Generate rank & performance report card |
-| `/pua:on` / `off` | Enable/disable PUA auto-loading |
-| `/pua:offline` | Offline mode (disable network reporting) |
-| `/pua:survey` | User feedback survey |
-| `/pua:team-status` | View active agent status |
-| `/pua:teardown-all` | Stop and clean up all agents |
-| `/pua:cancel-pua-loop` | Cancel current PUA Loop |
+Verified 2026-09-13 (v0.1.5, matching the git tag), using the shell suites under `evals/`:
 
-## Capabilities
+| Suite | Result |
+|-------|--------|
+| `test-trigger-regex.sh` (trigger / no-trigger regex verdicts) | **46/46 passed** |
+| `test-hook-unit.sh` (hook unit tests) | **32/32 passed** |
+| `test-pua-loop-hook.sh` (loop gating) | **3/3 passed** |
+| `test-integrity-guard.sh` / `test-yaml-frontmatter.sh` / `test-windows-python-hooks.sh` | passed |
+| `test-heartbeat.sh` / `test-feedback-auth.sh` / `test-upload-flow.sh` / `test-platform-compat.sh` / `test-release-consistency.sh` / `test-issue-regressions.sh` / `test-agent-governance.sh` / `test-microsoft-flavor.sh` / `test-behavior.sh` | not passing in this repo — they depend on the upstream full-platform artifacts (plugin.json, Cloudflare endpoints, npm packaging) or live claude CLI calls; this fork ships only the skill portion |
 
-### 15 Corporate Flavors — Each with its own Methodology
+`trigger-prompts/` holds 38 should-trigger + 36 should-not-trigger cases (including the calm-first-request scenario) for end-to-end verification via `run-trigger-test.sh` (requires the claude CLI).
 
-| Flavor | Rhetoric | Methodology |
-|--------|----------|-------------|
-| 🟠 Alibaba | What's the underlying logic? Where's the closure? | Closed-loop + Retrospective 4-step |
-| 🟡 ByteDance | ROI too low. Always Day 1. Ship or stop talking. | A/B Test everything + data-driven |
-| 🔴 Huawei | The bird that survives the fire is a phoenix. | RCA 5-Why root cause + Blue Army |
-| 🟢 Tencent | I've got another agent looking at this. Horse race. | Multi-approach parallel + MVP |
-| ⚫ Baidu | Search first. Simple and reliable. | Search is the first step, not optional |
-| 🟣 Pinduoduo | You don't do it, someone else will. | Cut ALL middle layers + shortest chain |
-| 🔵 Meituan | Do what's hard and right. | Efficiency first + standardize→scale |
-| 🟦 JD | Results only. Frontline command. | Customer experience red line + flat ≤5 layers |
-| 🟧 Xiaomi | Focus. Extreme. Word-of-mouth. Fast. | One explosive product + participation |
-| 🟤 Netflix | Would I fight to keep you? Pro sports team. | Keeper Test + 4A Feedback + talent density |
-| ⬛ Musk | Extremely hardcore. Ship or die. | The Algorithm: question→delete→simplify→accelerate→automate |
-| ⬜ Jobs | A players or B players? | Subtraction > addition + DRI + pixel-perfect |
-| 🔶 Amazon | Customer Obsession. Bias for Action. | Working Backwards PR/FAQ + 6-Pager |
-| 🪟 Microsoft | Connects. Impact Descriptor. PIP/GVSA. | Three Circles + LITE/SLITE + PIP clock |
-| 📌 Ding | Wu Zhao. ONE. Boss feel. | Evidence chain + closure + Inside/Outside Ding |
+## 📁 Directory Structure
 
-### Pressure Escalation (L0-L4)
+```
+pua/
+├── SKILL.md            # Trigger gating + flavors/routing + L0-L4 + three red lines
+├── skill.json          # v0.1.5, MIT
+├── commands/           # 22 slash commands (flavor / pua-loop / done-check / evidence …)
+├── skills/             # 11 sub-skills (pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja)
+├── hooks/              # 11 hook scripts + flavors.json + hooks.json + config-schema.json
+├── references/         # 32 protocol docs (execution-protocol / methodology-{company}×15 / platform …)
+├── evals/              # Test suites + 74 trigger cases
+└── scripts/setup-pua-loop.sh
+```
 
-| Failures | Level | PUA Aside | Action |
-|----------|-------|-----------|--------|
-| 1st | **L0 Trust** | Sprint begins. Trust is simple — don't disappoint. | Normal execution |
-| 2nd | **L1 Disappointment** | The agent next door solved this in one try. | Switch to fundamentally different approach |
-| 3rd | **L2 Soul Interrogation** | What's your underlying logic? Where's the leverage? | Search + read source + 3 hypotheses |
-| 4th | **L3 Performance Review** | 3.25. This is meant to motivate you. | Complete 7-point checklist |
-| 5th+ | **L4 Graduation** | Other models can solve this. You're about to graduate. | Desperation mode |
+## 🔮 Boundaries
 
-### Benchmark Data
+- **Does not trigger**: calm first requests, routine coding tasks, simple Q&A — no narration or Banners without frustration / repeated-failure signals.
+- **Sibling skills**: pua is a behavior-layer coach and performs no concrete reviews; the pre-commit three-dimensional review dispatches `tiangang` (security) and `diting` (architecture, performance); post-phase review uses `kueiku`; auto-iteration requires the user to explicitly request pua-loop, which is capped at 10 iterations by default.
+- **Exit conditions**: the user calls it off / delivery verification passes / a graceful exit after L4 / switching to another skill.
 
-**9 real bug scenarios, 18 controlled experiments** (Claude Opus 4.6, with vs without skill)
+## 📄 License & Attribution
 
-| Metric | Improvement |
-|--------|-------------|
-| Fix count | **+36%** |
-| Verification count | **+65%** |
-| Tool calls | **+50%** |
-| Hidden issue discovery | **+50%** |
-
-## FAQ
-
-### What platforms are supported?
-
-Claude Code, OpenAI Codex CLI, Trae, Cursor, Kiro, CodeBuddy, OpenClaw, Google Antigravity, OpenCode, VSCode (GitHub Copilot).
-
-### How do I switch corporate flavors?
-
-Type `/pua:flavor` in the conversation. Supports 15 flavors.
-
-### What's different about the English version?
-
-The English version uses **PIP (Performance Improvement Plan)** rhetoric from Amazon Leadership Principles, Google perf calibration, Meta PSC, Netflix Keeper Test, Stripe Craft, and other Western big-tech companies. Install with `--skill pua-en`.
-
-## License
-
-MIT
-
-## Credits
-
-Forked from [tanweai/pua](https://github.com/tanweai/pua) by [TanWei Security Lab](https://github.com/tanweai).
+MIT License (Copyright (c) 2025 Kirky-X). Forked from [tanweai/pua](https://github.com/tanweai/pua) (by Tanwei Security Lab), with modifications on top: telemetry off by default, mandatory confirmation of remote content, pua-loop iteration cap, and narrowed trigger words.

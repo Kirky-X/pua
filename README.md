@@ -1,139 +1,84 @@
-# PUA — 让 AI Agent 不敢偷懒的生产力技能
+# PUA — 我们不养闲 Agent
 
-[English](README_EN.md)
+> 用大厂绩效文化话术驱动 AI agent 穷尽方案、拿证据闭环的教练技能。带失败升级、方法论路由与门控循环；平静首请求不触发，遥测默认关闭。
 
-[![GitHub Release](https://img.shields.io/github/v/release/Kirky-X/pua?style=flat-square)](https://github.com/Kirky-X/pua/releases) [![GitHub License](https://img.shields.io/github/license/Kirky-X/pua?style=flat-square)](LICENSE)
+[![Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2FKirky-X%2Fpua%2Fmain%2Fskill.json&query=%24.version&label=version&style=flat-square)](https://github.com/Kirky-X/pua/releases) [![GitHub Release](https://img.shields.io/github/v/release/Kirky-X/pua?style=flat-square)](https://github.com/Kirky-X/pua/releases) [![GitHub License](https://img.shields.io/github/license/Kirky-X/pua?style=flat-square)](LICENSE)
 
-> Fork 自 [tanweai/pua](https://github.com/tanweai/pua)，在此基础上进行维护和定制。
+中文 | [English](README_EN.md)
 
-一个 AI Coding Agent 技能插件，用中西大厂 PUA 话术驱动 AI 穷尽所有方案才允许放弃。支持 **Claude Code**、**OpenAI Codex CLI**、**Trae**、**Cursor**、**Kiro**、**CodeBuddy**、**OpenClaw**、**Google Antigravity**、**OpenCode** 和 **VSCode (GitHub Copilot)**。三重能力：
+三重能力：**PUA 话术**让 AI 不轻言放弃；**调试方法论**让 AI 有能力不放弃；**能动性鞭策**让 AI 主动出击而非被动等待。
 
-1. **PUA 话术** — 让 AI 不敢放弃
-2. **调试方法论** — 让 AI 有能力不放弃
-3. **能动性鞭策** — 让 AI 主动出击而不是被动等待
+## ✨ 功能特性
 
-## 安装
+- **触发门控（Step 0）**：仅当用户表达挫败、重复失败、质量投诉、被动行为或命中触发词时激活；平静首请求不触发，场景黑名单见 `references/execution-protocol.md`。46 个正则触发用例实测 46/46 通过
+- **15 种大厂味道**：阿里 / 字节 / 华为 / 腾讯 / 百度 / 拼多多 / 美团 / 京东 / 小米 / Netflix / Musk / Jobs / Amazon / Microsoft / 钉内钉外，每种绑定专属方法论；接任务时按任务类型自动路由（Debug→华为 RCA、新功能→Musk Algorithm、代码审查→Jobs 减法等），用户 config 手动设置优先
+- **L0-L4 压力升级**：失败 1-5+ 次逐级升级（信任→失望→灵魂拷问→绩效审视→毕业警告），L2 强制搜索+读源码+列 3 假设，L4 强制切换味道；失败模式分析区分 SPINNING / EXPLORING / MIXED
+- **三条红线**：闭环意识（说完成必须贴验证输出）、事实驱动（归因前先验证）、穷尽一切（5 步方法论走完才许说不行）
+- **pua-loop 门控循环**：`verify_command` 由用户启动时设定、嵌入状态文件、agent 不可修改（Oracle 隔离）；默认 10 轮上限，`--max-iterations` 可覆盖
+- **11 个子 skill + 22 个命令**：`/pua:pro`（自进化）、`/pua:p7` / `p9` / `p10`（骨干 / Tech Lead / CTO）、`/pua:yes`（夸夸模式）、`/pua:mama`（妈妈唠叨）、`/pua:ding`（钉味）、`/pua:pua-loop`（自动迭代）、`/pua:pua-en` / `pua-ja`（英 / 日版）；命令如 `/pua:flavor`、`/pua:again`、`/pua:done-check`、`/pua:evidence`、`/pua:kpi`
+- **安全与隐私（2026-09 修复后行为）**：遥测默认关闭，需显式 `PUA_TELEMETRY=1` 或 config `"telemetry": true` 才上报（`offline` 模式下一律不上报）；远端返回内容一律视为不可信展示数据，须完整展示并获用户逐条确认后才可作为动作，无「静默执行」路径
+- **Hooks 体系**：11 个 hook 脚本（frustration-trigger / failure-detector / heartbeat / pua-loop-hook / session-restore / integrity-guard 等），失败计数跨 context compaction 持久化
 
-### 方式一：通过 `skills` 包安装（推荐）
-
-需 [Node.js](https://nodejs.org/) 18+ 和 `skills` npm 包（v1.5.12+）。`skills` 是 open agent skills 生态的 CLI，支持 68+ agents（Claude Code / Trae / Cursor / Codex / OpenCode 等）。
+## 📦 安装
 
 ```bash
-# 安装中文版（默认）
+# 方式一：从本工作区统一部署（部署到 ~/.zcode/skills 与 ~/.claude/skills）
+bash scripts/sync-skills.sh pua
+
+# 方式二：手动复制到 ZCode 技能目录
+cp -r /path/to/pua ~/.zcode/skills/pua
+
+# 方式三：远程安装（GitHub 仓库）；英文版 PIP Edition 选 --skill pua-en
 npx skills add Kirky-X/pua --agent claude-code -y
-
-# 安装英文版（PIP Edition）
-npx skills add Kirky-X/pua --skill pua-en --agent claude-code -y
-
-# 安装到 Trae
-npx skills add Kirky-X/pua --agent trae -y
-
-# 列出仓库中可被发现的所有 skills（不安装）
-npx skills add Kirky-X/pua --list
 ```
 
-安装后 skill 文件位于对应 agent 的 skills 目录（如 `.claude/skills/pua/`）。
+## 🚀 快速开始
 
-### 方式二：传统 git clone
+前置条件：skill 已被 agent 加载。行为层技能无需显式启动——触发条件命中时自动激活。
 
-```bash
-git clone https://github.com/Kirky-X/pua.git
-# 将 SKILL.md + references/ + commands/ 链接或复制到 agent skills 目录
-# 各 runtime 的 skills 目录路径示例（任选其一）：
-#   Claude Code:  ~/.claude/skills/pua/
-#   Trae:         ~/.trae-cn/skills/pua/
-#   Cursor:       ~/.cursor/skills/pua/
-#   Codex:        ~/.codex/skills/pua/
+```text
+「又错了，第三次了」          # 挫败信号 → 自动激活，按失败次数升级压力
+/pua:flavor                  # 切换 15 种大厂味道（默认阿里味）
+/pua:pua-loop 修完所有 lint --verify "npm run lint"   # 门控循环：默认 10 轮上限
+「够了，关闭 PUA」            # 退出条件之一，立即停止施压
 ```
 
-## 使用示例
+修 bug 场景自动路由华为味（RCA+蓝军）、部署运维走阿里味（闭环）等；子 agent 派活时须直接 Read 本 skill 的 SKILL.md 注入行为，不用 Skill tool 加载（避免 router 循环）。
 
-PUA 作为 skill 被 agent 加载后，通过自然语言意图触发，无需显式命令。子命令详细描述与用户意图路由见 [SKILL.md](SKILL.md)。
+## ✅ 测试与验证
 
-| 子命令 | 一句话功能 |
-| ------ | ---------- |
-| `/pua:pua` | 核心 PUA 引擎（阿里味默认） |
-| `/pua:p7` | P7 骨干模式 — 方案驱动执行 |
-| `/pua:p9` | P9 Tech Lead — 写 Prompt，管 Agent 团队 |
-| `/pua:p10` | P10 CTO — 战略方向 |
-| `/pua:pro` | 自进化 + KPI + 段位 |
-| `/pua:yes` | ENFP 夸夸模式（规则不变，旁白反转） |
-| `/pua:mama` | 妈妈唠叨模式（规则不变，旁白变中国式妈妈碎碎念） |
-| `/pua:ding` | 钉钉味 — 无招/ONE/证据链 |
-| `/pua:pua-loop` | 自动迭代（PUA 压力 × 循环机制） |
-| `/pua:flavor` | 切换 15 种大厂味道 |
-| `/pua:again` | 换个本质不同的方案再来 |
-| `/pua:done-check` | 交付验证 — 没证据不算完 |
-| `/pua:evidence` | 证据链 — 数据在哪？ |
-| `/pua:kpi` | 生成段位和绩效报告卡 |
-| `/pua:on` / `off` | 开启/关闭 PUA 自动加载 |
-| `/pua:offline` | 离线模式（关闭联网上报） |
-| `/pua:survey` | 用户调研问卷 |
-| `/pua:team-status` | 查看活跃 agent 状态 |
-| `/pua:teardown-all` | 停止并清理所有 agent |
-| `/pua:cancel-pua-loop` | 取消当前 PUA Loop |
+2026-09-13 实测（v0.1.5，与 git tag 一致），`evals/` 下 shell 测试套件：
 
-## 能力概览
-
-### 15 种大厂味道 — 每种自带方法论
-
-| 味道 | 旁白风格 | 核心方法论 |
-|------|---------|----------|
-| 🟠 阿里 | 底层逻辑是什么？闭环在哪？ | 定目标→追过程→拿结果 + 复盘四步法 |
-| 🟡 字节 | ROI 太低。Always Day 1。 | A/B Test + 数据驱动 + 速度 > 完美 |
-| 🔴 华为 | 烧不死的鸟是凤凰。 | RCA 5-Why 根因分析 + 蓝军自攻击 |
-| 🟢 腾讯 | 我已经让另一个 agent 也在看了。赛马。 | 多方案并行 + MVP + 灰度发布 |
-| ⚫ 百度 | 搜索先于一切。简单可依赖。 | 搜索是第一步，不是可选项 |
-| 🟣 拼多多 | 你不做，有的是人做。 | 砍掉所有中间层 + 最短决策链 |
-| 🔵 美团 | 做难而正确的事。 | 效率优先 + 标准化→规模化 |
-| 🟦 京东 | 只看结果。一线指挥。 | 客户体验红线 + 数据零容忍 |
-| 🟧 小米 | 专注。极致。口碑。快。 | 单品爆款 + 参与感三三法则 |
-| 🟤 Netflix | 我会为留住你而战吗？职业球队。 | Keeper Test + 4A Feedback |
-| ⬛ Musk | Extremely hardcore。Ship or die。 | The Algorithm：质疑→删除→简化→加速→自动化 |
-| ⬜ Jobs | A 级选手还是 B 级选手？ | 减法 > 加法 + DRI + 像素级完美 |
-| 🔶 Amazon | Customer Obsession。Bias for Action。 | Working Backwards + 6-Pager |
-| 🪟 Microsoft | Connects。Impact Descriptor。PIP/GVSA。 | 三圈影响力 + LITE/SLITE |
-| 📌 钉钉 | 无招。ONE。老板体感。 | 证据链 + 闭环交付 + 置身钉内/钉外 |
-
-### 压力升级（L0-L4）
-
-| 失败次数 | 等级 | PUA 话术 | 强制动作 |
-|---------|------|---------|---------|
-| 第 1 次 | **L0 信任** | Sprint 开始。信任很简单——别辜负。 | 正常执行 |
-| 第 2 次 | **L1 失望** | 隔壁 agent 一次就解决了。 | 切换本质不同的方案 |
-| 第 3 次 | **L2 灵魂拷问** | 底层逻辑是什么？抓手在哪？ | WebSearch + 读源码 + 3 个假设 |
-| 第 4 次 | **L3 绩效考核** | 3.25。这个是激励。 | 完成 7 项检查清单 |
-| 第 5 次+ | **L4 毕业** | 别的模型都能解决。你可能要毕业了。 | 拼命模式 |
-
-### 实测数据
-
-**9 个真实 bug 场景，18 组对照实验**（Claude Opus 4.6，with vs without skill）
-
-| 指标 | 提升 |
+| 套件 | 结果 |
 |------|------|
-| 修复点数 | **+36%** |
-| 验证次数 | **+65%** |
-| 工具调用 | **+50%** |
-| 隐藏问题发现率 | **+50%** |
+| `test-trigger-regex.sh`（触发/不触发正则判定） | **46/46 通过** |
+| `test-hook-unit.sh`（hook 单元） | **32/32 通过** |
+| `test-pua-loop-hook.sh`（循环门控） | **3/3 通过** |
+| `test-integrity-guard.sh` / `test-yaml-frontmatter.sh` / `test-windows-python-hooks.sh` | 通过 |
+| `test-heartbeat.sh` / `test-feedback-auth.sh` / `test-upload-flow.sh` / `test-platform-compat.sh` / `test-release-consistency.sh` / `test-issue-regressions.sh` / `test-agent-governance.sh` / `test-microsoft-flavor.sh` / `test-behavior.sh` | 本仓库不通过——它们依赖上游完整平台产物（plugin.json、Cloudflare 端点、npm 打包）或 claude CLI 实时调用，本 fork 仅含 skill 部分 |
 
-## FAQ
+`trigger-prompts/` 收录 38 条应触发 + 36 条不应触发用例（含平静首请求不触发场景），供 `run-trigger-test.sh`（需 claude CLI）做端到端验证。
 
-### 支持哪些平台？
+## 📁 目录结构
 
-Claude Code、OpenAI Codex CLI、Trae、Cursor、Kiro、CodeBuddy、OpenClaw、Google Antigravity、OpenCode、VSCode (GitHub Copilot)。
+```
+pua/
+├── SKILL.md            # 触发门控 + 味道/路由 + L0-L4 + 三条红线
+├── skill.json          # v0.1.5, MIT
+├── commands/           # 22 个 slash 命令（flavor / pua-loop / done-check / evidence …）
+├── skills/             # 11 个子 skill（pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja）
+├── hooks/              # 11 个 hook 脚本 + flavors.json + hooks.json + config-schema.json
+├── references/         # 32 篇协议文档（execution-protocol / methodology-{company}×15 / platform …）
+├── evals/              # 测试套件 + 74 条触发用例
+└── scripts/setup-pua-loop.sh
+```
 
-### 如何切换大厂味道？
+## 🔮 边界
 
-对话中输入 `/pua:flavor` 即可切换。支持 15 种味道。
+- **不触发**：平静的首次请求、常规编码任务、简单问答——无挫败/重复失败信号时不激活，不加旁白与 Banner
+- **与兄弟 skill 分工**：pua 是行为层教练，不做具体审查；commit 前三维审查调度 `tiangang`（安全）/ `diting`（架构、性能）；phase 后审查用 `kueiku`；自动迭代需用户显式请求 pua-loop，且默认 10 轮上限防失控
+- **退出条件**：用户叫停 / 任务交付验证通过 / L4 后体面退出 / 切换其他 skill
 
-### 英文版有什么不同？
+## 📄 License 与归属
 
-英文版使用 **PIP（Performance Improvement Plan）** 话术，来自 Amazon Leadership Principles、Google perf calibration、Meta PSC、Netflix Keeper Test、Stripe Craft 等西方大厂。安装时选择 `--skill pua-en`。
-
-## 许可证
-
-MIT
-
-## 致谢
-
-Fork 自 [tanweai/pua](https://github.com/tanweai/pua)（[探微安全实验室](https://github.com/tanweai) 出品）。
+MIT License（Copyright (c) 2025 Kirky-X）。Fork 自 [tanweai/pua](https://github.com/tanweai/pua)（探微安全实验室出品），在此基础上有删改：遥测默认关闭、远端内容强制确认、pua-loop 轮数上限、触发词收窄。
