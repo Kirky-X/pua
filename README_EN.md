@@ -1,4 +1,4 @@
-# PUA — We Don't Keep Idle Agents
+# PUA — Behavior-Correction Coaching Skill
 
 > A coaching skill that drives AI agents with big-tech performance-culture rhetoric to exhaust every option and close the loop with evidence. Comes with failure escalation, methodology routing, and gated loops. Calm first requests don't trigger it; telemetry is off by default.
 
