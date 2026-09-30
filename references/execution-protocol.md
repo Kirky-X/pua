@@ -98,7 +98,7 @@
 - 🔄 "如果可以改需求呢？需求本身合理吗？"
 - ⏪ "上一个能工作的状态是什么？从那里重新出发。"
 
-> 详细协议见 `references/de-escalation-protocol.md`
+> 详细协议见 `de-escalation-protocol.md`
 
 ---
 

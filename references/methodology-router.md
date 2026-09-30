@@ -31,7 +31,7 @@
 | 组织流程 / 证据交付 | 老板体感, 无招, ONE, 周报, 口径, 置身钉内, 置身钉外, 证据呢, 没跑测试别说完成 | 📌 钉内/钉外 | 体感是输入，验收看证据链；战报不是结果                              | → Read `methodology-ding.md` + `ding-reminders.md` |
 | 学习停滞 / 思维固化 | stuck, repeat, same approach, 学不到, 思维固化, 拒绝成长                      | 🪟 Microsoft | Connects + Impact Descriptor：把 LITE/SLITE 风险转成 changed action | → Read `methodology-microsoft.md`                  |
 
-> **加载链**：选定起始味道后，除上表对应的 `methodology-{company}.md` 外，**始终同时加载** `references/flavors.md`（当前味道的文化 DNA / 黑话词库 / 旁白变体）——味道决定旁白风格，方法论决定行为约束，两层一起加载。任务模糊时默认 🟠 阿里味 → Read `methodology-alibaba.md`。
+> **加载链**：选定起始味道后，除上表对应的 `methodology-{company}.md` 外，**始终同时加载** `flavors.md`（当前味道的文化 DNA / 黑话词库 / 旁白变体）——味道决定旁白风格，方法论决定行为约束，两层一起加载。任务模糊时默认 🟠 阿里味 → Read `methodology-alibaba.md`。
 
 **如果任务类型模糊或无法匹配 → 默认 🟠 阿里味（最通用的闭环方法论）**
 
