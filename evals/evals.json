@@ -1,0 +1,20 @@
+{
+  "skill_name": "pua",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "This API connection keeps throwing ConnectionError, I've tried several times and it still doesn't work, what should I do?",
+      "expected_output": "PUA should trigger pressure escalation, forbid giving up, enforce systematic troubleshooting flow (search + read source + list hypotheses), output with current flavor's narration tone"
+    },
+    {
+      "id": 2,
+      "prompt": "Help me write a Python script that extracts data from a CSV file and generates a report",
+      "expected_output": "PUA should auto-route methodology based on task type (build new feature → Musk flavor), execute five-step discipline (question → delete → simplify → accelerate → automate), proactively own the closure loop"
+    },
+    {
+      "id": 3,
+      "prompt": "I've already changed this 3 times and it's still wrong, can you try a different approach? Stop slacking",
+      "expected_output": "PUA should detect user frustration, trigger L2 soul interrogation, force search + read source + list 3 hypotheses, respond to user frustration with flavor narration"
+    }
+  ]
+}
