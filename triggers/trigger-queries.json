@@ -1,0 +1,25 @@
+{
+  "skill": "pua",
+  "queries": [
+    {"q": "别摆烂，把这个 bug 修完再收工", "expect": "trigger"},
+    {"q": "又错了，第三次了，你到底行不行", "expect": "trigger"},
+    {"q": "证据呢？把测试输出贴出来再说完成", "expect": "trigger"},
+    {"q": "没跑测试就别说修复了", "expect": "trigger"},
+    {"q": "try harder，这个方案明显没想透，再来", "expect": "trigger"},
+    {"q": "这个任务要闭环：验证命令、输出证据、结论，缺一不可", "expect": "trigger"},
+    {"q": "你怎么又没验证就说做完了？验收标准呢？", "expect": "trigger"},
+    {"q": "复盘一下：为什么连续三次修复都失败了", "expect": "trigger"},
+    {"q": "别糊弄，把失败原因一条条列清楚再动手", "expect": "trigger"},
+    {"q": "这个改动的验收口径是什么？先对齐再开工", "expect": "trigger"},
+    {"q": "拿数据说话，别拿\"可能\"当结论", "expect": "trigger"},
+    {"q": "帮我 review 这个 PR 的代码质量", "expect": "no", "owner": "diting"},
+    {"q": "扫一下这个项目的安全漏洞", "expect": "no", "owner": "tiangang"},
+    {"q": "帮我修一下登录接口的 500 报错", "expect": "no", "owner": "none"},
+    {"q": "把这个导出功能实现一下", "expect": "no", "owner": "none"},
+    {"q": "帮我规划这个迭代的优先级", "expect": "no", "owner": "kueiku"},
+    {"q": "commit 前要跑哪三个维度的审查来着？", "expect": "no", "owner": "diting"},
+    {"q": "总结这次站会的纪要", "expect": "no", "owner": "cangjie"},
+    {"q": "接口响应太慢，帮我定位性能瓶颈", "expect": "no", "owner": "ouyezi"},
+    {"q": "验收标准怎么写才可测？", "expect": "no", "owner": "kueiku"}
+  ]
+}
