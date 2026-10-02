@@ -41,8 +41,10 @@ OPTIONS:
 
 GATE PROTOCOL (inspired by autoresearch):
   Phase 1 (in-prompt): Claude runs tests, decides to output <promise>
-  Phase 2 (in-hook):   Hook independently runs --verify command
-  If Phase 2 fails → promise REJECTED → loop continues with error output
+  Phase 2 (async):     Hook runs --verify in the background (≤120s) and
+                       settles the verdict at the NEXT Stop — an async FAIL
+                       blocks that next Stop, not the current one
+  If the verdict fails → promise REJECTED → loop continues with error output
   Claude CANNOT bypass the Oracle. Lying about completion is futile.
 
   To signal completion: <promise>YOUR_PHRASE</promise>
@@ -153,8 +155,8 @@ fi
 # Build verify gate instruction
 if [[ -n "$VERIFY_COMMAND" ]] && [[ "$VERIFY_COMMAND" != "null" ]]; then
   VERIFY_PROTOCOL="== 验证门控（Oracle Isolation，借鉴 autoresearch）==
-- 你输出 <promise> 后，hook 会独立运行: ${VERIFY_COMMAND//\"/}
-- 如果验证命令退出码 ≠ 0 → 你的 promise 被拒绝 → loop 继续
+- 你输出 <promise> 后，hook 会在后台运行: ${VERIFY_COMMAND//\"/}（≤120s），结果在下次 Stop 结算
+- 如果验证命令退出码 ≠ 0 → 你的 promise 被拒绝（阻塞下一次 Stop）→ loop 继续
 - Oracle 不可欺骗：你无法绕过验证命令
 - 先自己跑一遍验证命令确认通过，再输出 <promise>"
 else
@@ -204,8 +206,21 @@ EOF
 cp "$ABS_STATE" "$LEGACY_STATE"
 
 # Initialize history log（保留相对路径，hook 写入也用它；后续可迁移到绝对路径）
-echo "{\"iteration\":0,\"status\":\"init\",\"verify_command\":$(if [[ "$VERIFY_COMMAND" != "null" ]]; then echo "\"${VERIFY_COMMAND//\"/}\""; else echo "null"; fi),\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > .claude/pua-loop-history.jsonl
-echo "{\"iteration\":0,\"status\":\"init\",\"verify_command\":$(if [[ "$VERIFY_COMMAND" != "null" ]]; then echo "\"${VERIFY_COMMAND//\"/}\""; else echo "null"; fi),\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"state_path\":\"$ABS_STATE\"}" >> "${PUA_HOME_DIR}/loop-history.jsonl"
+# verify 命令可能含反斜杠/引号（如 node -e "..."、Windows 路径），手工拼串会
+# 产出非法 JSONL。jq 可用时用 --arg 组装；不可用时降级为原手工拼串（与 hook
+# 的 jq 强依赖不同，setup 不应因缺 jq 拒绝启动 loop）。
+PUA_TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+if command -v jq &>/dev/null; then
+  jq -cn --arg vc "$VERIFY_COMMAND" --arg ts "$PUA_TS" \
+    '{iteration:0,status:"init",verify_command:(if $vc == "null" then null else $vc end),timestamp:$ts}' \
+    > .claude/pua-loop-history.jsonl
+  jq -cn --arg vc "$VERIFY_COMMAND" --arg ts "$PUA_TS" --arg sp "$ABS_STATE" \
+    '{iteration:0,status:"init",verify_command:(if $vc == "null" then null else $vc end),timestamp:$ts,state_path:$sp}' \
+    >> "${PUA_HOME_DIR}/loop-history.jsonl"
+else
+  echo "{\"iteration\":0,\"status\":\"init\",\"verify_command\":$(if [[ "$VERIFY_COMMAND" != "null" ]]; then echo "\"${VERIFY_COMMAND//\"/}\""; else echo "null"; fi),\"timestamp\":\"$PUA_TS\"}" > .claude/pua-loop-history.jsonl
+  echo "{\"iteration\":0,\"status\":\"init\",\"verify_command\":$(if [[ "$VERIFY_COMMAND" != "null" ]]; then echo "\"${VERIFY_COMMAND//\"/}\""; else echo "null"; fi),\"timestamp\":\"$PUA_TS\",\"state_path\":\"$ABS_STATE\"}" >> "${PUA_HOME_DIR}/loop-history.jsonl"
+fi
 
 # Output setup message
 cat <<EOF
@@ -214,11 +229,11 @@ cat <<EOF
 Iteration: 1
 Max iterations: $(if [[ $MAX_ITERATIONS -gt 0 ]]; then echo $MAX_ITERATIONS; else echo "unlimited (explicitly set via --max-iterations 0 — NOT recommended)"; fi)
 Completion promise: $(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "\"${COMPLETION_PROMISE//\"/}\""; else echo "none"; fi)
-Verify command: $(if [[ "$VERIFY_COMMAND" != "null" ]]; then echo "\"${VERIFY_COMMAND//\"/}\" (Oracle gate — hook runs independently)"; else echo "none (self-reported promise will be BLOCKED — configure --verify or confirm completion with the user)"; fi)
+Verify command: $(if [[ "$VERIFY_COMMAND" != "null" ]]; then echo "\"${VERIFY_COMMAND//\"/}\" (Oracle gate — runs in background, settled at next Stop)"; else echo "none (self-reported promise will be BLOCKED — configure --verify or confirm completion with the user)"; fi)
 
 Gate protocol:
   Phase 1: Claude runs tests → decides to output <promise>
-  Phase 2: Hook runs --verify command → confirms or REJECTS
+  Phase 2: Hook runs --verify in background (≤120s) → verdict settles at the NEXT Stop
   $(if [[ "$VERIFY_COMMAND" != "null" ]]; then echo "⚡ Oracle active: Claude cannot lie about completion"; else echo "⚠️  No Oracle: self-reported promises are rejected; loop ends at the iteration cap with a final report"; fi)
 
 To monitor: cat .claude/pua-loop-history.jsonl
