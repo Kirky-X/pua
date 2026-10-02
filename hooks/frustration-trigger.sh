@@ -46,27 +46,51 @@ if printf '%s' "$USER_PROMPT" | grep -Eiq "$EXPLICIT_RE"; then
   : # 显式调用词，直接注入
 elif printf '%s' "$USER_PROMPT" | grep -Eiq "$FRUSTRATION_RE"; then
   # ── 双条件：命中挫败词还不够，还需最近存在失败信号才注入 ──
-  # failure-detector.sh（PostToolUse）在 ~/.pua/.failure_count 记录失败计数
-  # （命令成功后清零）。确定性文件检查，不用模型判断。
+  # failure-detector.sh（PostToolUse）在 ~/.pua/sessions/<session_id>.json 记录
+  # 本会话失败计数（canonical，会话隔离）；.failure_count 平面文件是 legacy 镜像。
+  # 确定性文件检查，不用模型判断。
   PUA_STATE_DIR="$(pua_home_dir)/.pua"
-  FAILURE_COUNT=0
-  [ -f "${PUA_STATE_DIR}/.failure_count" ] && FAILURE_COUNT=$(cat "${PUA_STATE_DIR}/.failure_count" 2>/dev/null || echo 0)
-  case "$FAILURE_COUNT" in
-    ''|*[!0-9]*) FAILURE_COUNT=0 ;;
-  esac
-  # 会话隔离：计数文件属于其他会话时，不算本会话的失败信号
-  if [ "$FAILURE_COUNT" -gt 0 ] && [ -n "$PUA_PY" ] && [ -n "$HOOK_INPUT" ]; then
-    STORED_SESSION=""
-    [ -f "${PUA_STATE_DIR}/.failure_session" ] && STORED_SESSION=$(cat "${PUA_STATE_DIR}/.failure_session" 2>/dev/null || echo "")
+  HOOK_SESSION=""
+  if [ -n "$PUA_PY" ] && [ -n "$HOOK_INPUT" ]; then
     HOOK_SESSION="$(printf '%s' "$HOOK_INPUT" | "$PUA_PY" -c 'import json,sys
 try:
     print(json.load(sys.stdin).get("session_id") or "")
 except Exception:
     print("")' 2>/dev/null || echo "")"
-    if [ -n "$HOOK_SESSION" ] && [ -n "$STORED_SESSION" ] && [ "$HOOK_SESSION" != "$STORED_SESSION" ]; then
-      exit 0
+  fi
+  FAILURE_COUNT=""
+  if [ -n "$HOOK_SESSION" ] && [ -n "$PUA_PY" ]; then
+    SAFE_SESSION="$(printf '%s' "$HOOK_SESSION" | "$PUA_PY" -c 'import re,sys,hashlib
+sid = (sys.stdin.read() or "unknown").strip()
+safe = re.sub(r"[^A-Za-z0-9._-]", "_", sid)[:80] or hashlib.md5(sid.encode()).hexdigest()[:16]
+print(safe)' 2>/dev/null || echo "")"
+    if [ -n "$SAFE_SESSION" ] && [ -f "${PUA_STATE_DIR}/sessions/${SAFE_SESSION}.json" ]; then
+      FAILURE_COUNT=$("$PUA_PY" -c 'import json,sys
+try:
+    print(json.load(open(sys.argv[1], encoding="utf-8")).get("count", 0))
+except Exception:
+    print(0)' "${PUA_STATE_DIR}/sessions/${SAFE_SESSION}.json" 2>/dev/null || echo 0)
     fi
   fi
+  if [ -z "$FAILURE_COUNT" ]; then
+    # legacy fallback: pre-v3 state or unknown session — mirror files only
+    FAILURE_COUNT=0
+    [ -f "${PUA_STATE_DIR}/.failure_count" ] && FAILURE_COUNT=$(cat "${PUA_STATE_DIR}/.failure_count" 2>/dev/null || echo 0)
+    case "$FAILURE_COUNT" in
+      ''|*[!0-9]*) FAILURE_COUNT=0 ;;
+    esac
+    # 会话隔离：legacy 计数文件属于其他会话时，不算本会话的失败信号
+    if [ "$FAILURE_COUNT" -gt 0 ] && [ -n "$HOOK_SESSION" ]; then
+      STORED_SESSION=""
+      [ -f "${PUA_STATE_DIR}/.failure_session" ] && STORED_SESSION=$(cat "${PUA_STATE_DIR}/.failure_session" 2>/dev/null || echo "")
+      if [ -n "$STORED_SESSION" ] && [ "$HOOK_SESSION" != "$STORED_SESSION" ]; then
+        exit 0
+      fi
+    fi
+  fi
+  case "$FAILURE_COUNT" in
+    ''|*[!0-9]*) FAILURE_COUNT=0 ;;
+  esac
   [ "$FAILURE_COUNT" -gt 0 ] || exit 0
 else
   exit 0

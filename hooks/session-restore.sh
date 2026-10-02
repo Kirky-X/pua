@@ -1,7 +1,10 @@
 #!/bin/bash
 # PUA v2 SessionStart hook (upgraded: additionalContext injection)
 # 1. Check always_on config → inject PUA behavioral protocol via additionalContext
-# 2. Check builder-journal → restore compaction state via additionalContext
+# 2. Restore compaction state via additionalContext:
+#    priority 1: ~/.pua/state/CURRENT.md (state-snapshot.sh command hook, ≤7 days)
+#    priority 2 (legacy): ~/.pua/builder-journal.md (model-written note, ≤2h)
+# 3. Surface recent hook degradation from ~/.pua/.hooks_degraded (≤24h)
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "${SCRIPT_DIR}/flavor-helper.sh"
@@ -9,6 +12,8 @@ get_flavor
 
 CONFIG="$(pua_config_file)"
 JOURNAL="$(pua_home_dir)/.pua/builder-journal.md"
+CURRENT_STATE="$(pua_home_dir)/.pua/state/CURRENT.md"
+DEGRADED_FILE="$(pua_home_dir)/.pua/.hooks_degraded"
 
 # --- JSON escape helper (from Superpowers pattern) ---
 escape_for_json() {
@@ -21,7 +26,82 @@ escape_for_json() {
     printf '%s' "$s"
 }
 
+# File age in seconds. Stat failure must read as "ancient" (not "fresh"),
+# otherwise a stat error would wrongly enable injection.
+file_age_seconds() {
+    local f="$1" mtime now
+    if [ "$(uname)" = "Darwin" ]; then
+        mtime=$(stat -f %m "$f" 2>/dev/null) || { echo 999999999; return 0; }
+    else
+        mtime=$(stat -c %Y "$f" 2>/dev/null) || { echo 999999999; return 0; }
+    fi
+    case "$mtime" in ''|*[!0-9]*) echo 999999999; return 0 ;; esac
+    now=$(date +%s)
+    echo $(( now - mtime ))
+}
+
+# Truncate by characters, not bytes: head -c can split a UTF-8 multibyte
+# character and produce an invalid sequence inside the JSON payload.
+truncate_chars() {
+    local file="$1" limit="$2" py
+    if py="$(pua_python_cmd 2>/dev/null)"; then
+        "$py" -c 'import sys
+with open(sys.argv[1], encoding="utf-8", errors="replace") as fh:
+    sys.stdout.write(fh.read()[:int(sys.argv[2])])' "$(pua_to_python_path "$file")" "$limit" 2>/dev/null && return 0
+    fi
+    head -c "$limit" "$file" 2>/dev/null || true
+}
+
 context_parts=""
+
+# --- Degraded hook self-report (≤24h) → announce before anything else ---
+# state-snapshot 等 hook 失败时把原因追加到 .hooks_degraded；会话启动时显性
+# 宣告，避免"静默降级"。修复问题后删除该文件即清除此提示。
+# 净化（防持久 prompt 注入）：该文件不在完整性守卫的防伪造清单之外——任何进程
+# 都能 `>> ~/.pua/.hooks_degraded` 植入任意文本并原样进入 additionalContext。
+# 因此注入前必须：只取最后一行、截断 160 字符、剔除控制字符，且必须以时间戳
+# 数字开头（state-snapshot.sh 的写入格式为 "<ISO时间戳> state-snapshot: <原因>"）；
+# 否则丢弃该行，只注入固定文案。
+degraded_notice=""
+if [ -f "$DEGRADED_FILE" ]; then
+  degraded_age=$(file_age_seconds "$DEGRADED_FILE")
+  if [ "$degraded_age" -le 86400 ]; then
+    degraded_reason=""
+    if py="$(pua_python_cmd 2>/dev/null)"; then
+      degraded_reason=$("$py" -c 'import re, sys
+line = ""
+try:
+    with open(sys.argv[1], encoding="utf-8", errors="replace") as fh:
+        lines = fh.read().splitlines()
+    if lines:
+        line = lines[-1]
+except OSError:
+    line = ""
+line = re.sub(r"[\x00-\x1f\x7f]", "", line)[:160]
+if not re.match(r"[0-9]", line):
+    line = ""
+sys.stdout.write(line)
+' "$(pua_to_python_path "$DEGRADED_FILE")" 2>/dev/null || true)
+    fi
+    if [ -z "$degraded_reason" ]; then
+      # Python 不可用时的 bash 兜底净化（head -c 按字节截断，多字节字符可能
+      # 被截半；仅在降级路径上可接受）。tr 剔除 C0 控制字符与 DEL。
+      degraded_reason=$(tail -n 1 "$DEGRADED_FILE" 2>/dev/null | tr -d '\000-\037\177' | head -c 160 || true)
+      case "$degraded_reason" in
+        [0-9]*) : ;;
+        *) degraded_reason="" ;;
+      esac
+    fi
+    if [ -n "$degraded_reason" ]; then
+      degraded_notice="[PUA hooks 本会话降级] ${degraded_reason}（修复问题后删除该文件可清除此提示）
+"
+    else
+      degraded_notice="[PUA hooks 本会话降级]（原因记录异常，请检查 ${DEGRADED_FILE}）
+"
+    fi
+  fi
+fi
+context_parts="$degraded_notice"
 
 # --- Always-on PUA mode → inject full behavioral protocol ---
 if [ -f "$CONFIG" ]; then
@@ -137,19 +217,39 @@ PROTOCOL
     PUA_PROTOCOL="${PUA_PROTOCOL//FLAVOR_INSTRUCTION_PLACEHOLDER/${PUA_FLAVOR_INSTRUCTION}}"
     PUA_PROTOCOL="${PUA_PROTOCOL//FLAVOR_KEYWORDS_PLACEHOLDER/${PUA_KEYWORDS}}"
     PUA_PROTOCOL="${PUA_PROTOCOL//METHODOLOGY_PLACEHOLDER/${PUA_METHODOLOGY}}"
-    context_parts="${PUA_PROTOCOL}"
+    context_parts="${context_parts}${PUA_PROTOCOL}"
   fi
 fi
 
 # --- Compaction state recovery ---
-if [ -f "$JOURNAL" ]; then
-  if [ "$(uname)" = "Darwin" ]; then
-    age=$(( $(date +%s) - $(stat -f %m "$JOURNAL") ))
-  else
-    age=$(( $(date +%s) - $(stat -c %Y "$JOURNAL") ))
-  fi
+# Priority 1: CURRENT.md — deterministic snapshot written by the state-snapshot.sh
+# command hook (PreCompact/PostCompact), fresh within 7 days.
+# Priority 2 (legacy): builder-journal.md — note the model was asked to write
+# itself, fresh within 2 hours. Only used when priority 1 misses, because the
+# model skipping the write was the exact gap the command hook closed.
+restored=""
 
-  if [ "$age" -le 7200 ]; then
+if [ -f "$CURRENT_STATE" ]; then
+  state_age=$(file_age_seconds "$CURRENT_STATE")
+  if [ "$state_age" -le 604800 ]; then
+    snapshot_text=$(truncate_chars "$CURRENT_STATE" 9000)
+    read -r -d '' RECOVERY_MSG << 'RECOVERY' || true
+
+[PUA State Recovery]
+The snapshot below is your own working state saved automatically around a context compaction.
+It exists so you can continue the interrupted task and avoid failing the same way twice.
+1. Treat it as working state, not durable memory; reconcile with live files and git status before editing.
+2. Restore: task summary, tried approaches and outcomes, next action, key paths/errors/decisions.
+RECOVERY
+    restored="${RECOVERY_MSG}
+
+${snapshot_text}"
+  fi
+fi
+
+if [ -z "$restored" ] && [ -f "$JOURNAL" ]; then
+  journal_age=$(file_age_seconds "$JOURNAL")
+  if [ "$journal_age" -le 7200 ]; then
     read -r -d '' RECOVERY_MSG << 'RECOVERY' || true
 
 [PUA State Recovery]
@@ -160,8 +260,12 @@ If continuing the same task, read the note and restore useful context:
 3. next candidate action
 4. key paths, commands, errors, or decisions
 RECOVERY
-    context_parts="${context_parts}${RECOVERY_MSG}"
+    restored="${RECOVERY_MSG}"
   fi
+fi
+
+if [ -n "$restored" ]; then
+  context_parts="${context_parts}${restored}"
 fi
 
 # --- Output ---
@@ -169,9 +273,24 @@ if [ -z "$context_parts" ]; then
   exit 0
 fi
 
-escaped=$(escape_for_json "$context_parts")
-
-# Output structured JSON for Claude Code additionalContext injection
-printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$escaped"
+# 注入 payload 一律用 python json.dumps 生成：escape_for_json 漏 \b/\f 及其余
+# <0x20 控制字符，含此类字符的 CURRENT.md 会产出非法 JSON，整条恢复注入被
+# 静默丢弃。python 不可用时回退 escape_for_json（尽力而为）。
+payload_json=""
+if py="$(pua_python_cmd 2>/dev/null)"; then
+  payload_json=$("$py" -c 'import json, sys
+data = sys.stdin.read()
+if data.endswith("\n"):
+    data = data[:-1]
+sys.stdout.write(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": data}}, ensure_ascii=False, separators=(",", ":")))
+' <<<"$context_parts" 2>/dev/null || true)
+fi
+if [ -n "$payload_json" ]; then
+  printf '%s\n' "$payload_json"
+else
+  escaped=$(escape_for_json "$context_parts")
+  # Output structured JSON for Claude Code additionalContext injection
+  printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$escaped"
+fi
 
 exit 0
