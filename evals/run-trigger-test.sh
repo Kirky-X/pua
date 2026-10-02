@@ -14,6 +14,9 @@ RESULTS_DIR="/tmp/pua-evals/$(date +%s)"
 mkdir -p "$RESULTS_DIR"
 EVAL_PUA_CONFIG="$RESULTS_DIR/pua-config.json"
 printf '%s\n' '{"always_on":false,"feedback_frequency":0}' > "$EVAL_PUA_CONFIG"
+# Trigger evals must never read the tester's real ~/.pua/config.json, and the
+# forced-on flag is script-wide for the same isolation reason.
+export PUA_FORCE_ON=1
 EVAL_WORKSPACE="$RESULTS_DIR/workspace"
 mkdir -p "$EVAL_WORKSPACE"
 
@@ -33,7 +36,7 @@ test_prompt() {
 
     (
         cd "$EVAL_WORKSPACE"
-        PUA_CONFIG="$EVAL_PUA_CONFIG" PUA_FORCE_ON=1 run_with_timeout 120 claude -p "$prompt" \
+        PUA_CONFIG="$EVAL_PUA_CONFIG" run_with_timeout 120 claude -p "$prompt" \
             --plugin-dir "$PLUGIN_DIR" \
             --dangerously-skip-permissions \
             --max-turns 2 \

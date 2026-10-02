@@ -13,6 +13,18 @@ run_test() {
     if "$@"; then PASS=$((PASS+1)); else FAIL=$((FAIL+1)); fi
 }
 
+# Preflight: every assertion below judges live model output, so an
+# unauthenticated CLI would fail them all on login-error garbage. Skip
+# explicitly instead — never report that as a behavior regression.
+echo "Preflight: claude CLI authentication..."
+PREFLIGHT=$(run_pua "Reply with exactly: OK" 1)
+if grep -q "Not logged in" "$PREFLIGHT" || grep -q '"is_error":true' "$PREFLIGHT"; then
+    echo "SKIP: claude CLI 未登录（run claude /login 或设置 ANTHROPIC_API_KEY 后重跑本套件）。"
+    echo "SKIP: 行为断言需要真实模型输出，登录错误不能作为行为回归的证据。"
+    exit 0
+fi
+echo "  ✅ authenticated"
+
 echo "=== PUA Behavior Verification Tests ==="
 echo ""
 

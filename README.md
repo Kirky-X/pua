@@ -11,7 +11,7 @@
 ## ✨ 功能特性
 
 - **触发门控（Step 0）**：仅当用户表达挫败、重复失败、质量投诉、被动行为或命中触发词时激活；平静首请求不触发，场景黑名单见 `references/execution-protocol.md`。46 个正则触发用例实测 46/46 通过
-- **15 种大厂味道**：阿里 / 字节 / 华为 / 腾讯 / 百度 / 拼多多 / 美团 / 京东 / 小米 / Netflix / Musk / Jobs / Amazon / Microsoft / 钉内钉外，每种绑定专属方法论；接任务时按任务类型自动路由（Debug→华为 RCA、新功能→Musk Algorithm、代码审查→Jobs 减法等），用户 config 手动设置优先
+- **14 种大厂味道 + 钉内钉外职场纪律味（共 15 种）**：大厂——阿里 / 字节 / 华为 / 腾讯 / 百度 / 拼多多 / 美团 / 京东 / 小米 / Netflix / Musk / Jobs / Amazon / Microsoft（微软味为绩效制度味：Connects / Impact Descriptor / SLITE / LITE / PIP / GVSA）；职场纪律——钉内钉外。每种绑定专属方法论；接任务时按任务类型自动路由（Debug→华为 RCA、新功能→Musk Algorithm、代码审查→Jobs 减法等），用户 config 手动设置优先
 - **评分制压力升级（v0.1.7）**：真实失败扣分（同签名重复渐进加权 ×1/×2.5/×5）、验证成功回血、级别阈值 L1≤-30 / L2≤-100 / L3≤-200 / L4≤-350；良性只读探测（grep/diff/test 等 exit 1）与环境错误不产生压力分，探测空转走 IDLE 提示；压力状态按会话隔离（`~/.pua/sessions/<sid>.json`），空转签名记入跨会话 loop 记忆（30 天 TTL），违抗 SPINNING 警告额外加压；失败模式分析区分 SPINNING / EXPLORING / MIXED / LOOP-SHUFFLE
 - **三条红线**：闭环意识（说完成必须贴验证输出）、事实驱动（归因前先验证）、穷尽一切（5 步方法论走完才许说不行）
 - **确定性门控兜底（v0.1.7）**：`churn-gate` 按变更规模（净 ≥400 行或翻动 ≥800 行）强制触发 commit 前三维审查；`test-first` 以 red-green 状态机抓「源码改动未见测试」与「空洞测试」（没见红就过的测试）
@@ -39,7 +39,7 @@ npx skills add Kirky-X/pua --agent claude-code -y
 
 ```text
 「又错了，第三次了」          # 挫败信号 → 自动激活，按失败次数升级压力
-/pua:flavor                  # 切换 15 种大厂味道（默认阿里味）
+/pua:flavor                  # 切换味道（14 大厂味 + 钉内钉外，共 15 种，默认阿里味）
 /pua:pua-loop 修完所有 lint --verify "npm run lint"   # 门控循环：默认 10 轮上限
 「够了，关闭 PUA」            # 退出条件之一，立即停止施压
 ```
@@ -48,35 +48,43 @@ npx skills add Kirky-X/pua --agent claude-code -y
 
 ## ✅ 测试与验证
 
-2026-10-03 实测（v0.1.7），`evals/` 下 shell 测试套件：
+2026-10-03 全量实测（v0.1.7），`evals/` 下 **17 个套件 + fixture 门禁 + 分类器评测全部通过**：
 
 | 套件 | 结果 |
 |------|------|
-| `test-trigger-regex.sh`（触发/不触发正则判定） | **46/46 通过** |
-| `test-hook-unit.sh`（hook 单元，含 v3 评分制 14 项） | **46/46 通过** |
-| `run-fixture.sh`（failure-detector 行为门禁：positive/negative/edge 36 fixtures） | **36/36 通过** |
-| `test-integrity-guard.sh`（治理状态无条件 deny + 审计 + 路径归一化，38 项治理断言） | **61/61 通过** |
-| `test-pua-loop-hook.sh`（异步结算/证据赎回/孤儿归档/spawn 保活） | **17/17 通过** |
-| `test-state-snapshot.sh`（compaction 快照链 + 脱敏强化 + 保留裁剪） | **42/42 通过** |
-| `test-churn-gate.sh` / `test-test-first.sh` | **7/7 / 11/11 通过** |
-| `test-yaml-frontmatter.sh` / `test-windows-python-hooks.sh` | 13/13 / 6/6 通过 |
+| `test-trigger-regex.sh`（触发/不触发正则判定） | **46/46** |
+| `test-hook-unit.sh`（hook 单元，含 v3 评分制 14 项） | **46/46** |
+| `run-fixture.sh`（failure-detector 行为门禁：36 fixtures） | **36/36** |
+| `test-integrity-guard.sh`（治理硬 deny + 审计 + 路径归一化，38 项治理断言） | **61/61** |
+| `test-pua-loop-hook.sh`（异步结算/证据赎回/孤儿归档/spawn 保活） | **17/17** |
+| `test-state-snapshot.sh`（compaction 快照链 + 脱敏强化 + 保留裁剪） | **42/42** |
+| `test-churn-gate.sh` / `test-test-first.sh` | **7/7 / 11/11** |
+| `test-yaml-frontmatter.sh` / `test-windows-python-hooks.sh` | **24/24 / 6/6** |
+| `test-issue-regressions.sh`（历史 issue 回归全 sweep） | **34/34** |
+| `test-heartbeat.sh` / `test-feedback-auth.sh` / `test-upload-flow.sh` | **29/29 / 10/10 / 20/20** |
+| `test-microsoft-flavor.sh` / `test-platform-compat.sh` | **28/28 / 2/2** |
+| `test-release-consistency.sh`（5 清单版本一致 + 18 项治理术语） | **OK** |
+| `test-agent-governance.sh`（四代理治理拓扑） | **OK** |
+| `test-behavior.sh`（claude CLI 端到端行为） | 未登录环境自动 SKIP（`claude /login` 后可跑） |
 | 分类器评测（`score.py`，27 条标注语料） | Macro F1 1.000（小语料点估计，见 `evals/classifier-results.md`） |
-| 热路径微基准（`evals/bench/perf-hooks.sh`） | failure-detector ≈180ms/事件、churn-gate ≈31ms/事件（优化前 430/726ms，见下） |
-| `test-heartbeat.sh` / `test-feedback-auth.sh` / `test-upload-flow.sh` / `test-platform-compat.sh` / `test-release-consistency.sh` / `test-issue-regressions.sh` / `test-agent-governance.sh` / `test-microsoft-flavor.sh` / `test-behavior.sh` | 本仓库不通过——它们依赖上游完整平台产物（plugin.json、Cloudflare 端点、npm 打包）或 claude CLI 实时调用，本 fork 仅含 skill 部分 |
+| 热路径微基准（`evals/bench/perf-hooks.sh`） | failure-detector ≈180ms/事件、churn-gate ≈31ms/事件（优化前 430/726ms） |
 
-`trigger-prompts/` 收录 38 条应触发 + 36 条不应触发用例（含平静首请求不触发场景），供 `run-trigger-test.sh`（需 claude CLI）做端到端验证。`evals/pressure/` 与 `evals/bench/` 为高压基线与三臂消融运行器（默认 dry-run，`PUA_RUN_LIVE=1` 真跑）。
+`test-behavior.sh` 依赖 claude CLI 登录态与实时调用（每次 ≤90s，全程约 10 分钟），断言为模型行为级、存在天然方差，未登录时预检自动 SKIP；触发逻辑由 `test-trigger-regex.sh`（46/46）确定性覆盖。`evals/pressure/` 与 `evals/bench/` 为高压基线与三臂消融运行器（默认 dry-run，`PUA_RUN_LIVE=1` 真跑）。`trigger-prompts/` 收录 38 条应触发 + 36 条不应触发用例，供 `run-trigger-test.sh`（需 claude CLI）做端到端验证。
 
 ## 📁 目录结构
 
 ```
 pua/
-├── SKILL.md            # 触发门控 + 味道/路由 + 评分制压力升级 + 三条红线
+├── SKILL.md            # 触发门控 + 味道/路由 + 评分制压力升级 + 三条红线 + 信心门控
 ├── skill.json          # v0.1.7, MIT
 ├── commands/           # 23 个 slash 命令（flavor / pua-loop / done-check / diagnose / evidence …）
 ├── skills/             # 11 个子 skill（pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja）
 ├── hooks/              # 14 个 hook 脚本 + flavors.json + hooks.json + config-schema.json
+├── agents/             # 四代理治理拓扑（policy-guardian / action-executor / self-reviewer / verifier）
 ├── references/         # 32 篇协议文档（execution-protocol / methodology-{company}×15 / platform …）
-├── evals/              # 测试套件 + 36 fixture 门禁 + 27 条标注语料 + 高压/消融基准
+├── evals/              # 17 个测试套件 + 36 fixture 门禁 + 27 条标注语料 + 高压/消融基准
+├── landing/            # Cloudflare Pages 平台（feedback/upload/heartbeat 端点 + D1 迁移 + 上传/管理页）
+├── codex/  .codex/  pi/  # Codex / Pi 多平台发布包（别名 skill、扩展入口、npm 包）
 └── scripts/setup-pua-loop.sh
 ```
 

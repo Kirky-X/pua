@@ -4,7 +4,8 @@
 
 PLUGIN_DIR="${PLUGIN_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
-# Portable timeout wrapper (shared helper)
+# Portable timeout wrapper: run_with_timeout() is defined by the shared helper
+# (macOS lacks GNU timeout; falls back to gtimeout/perl alarm there).
 source "${PLUGIN_DIR}/hooks/timeout-helper.sh"
 
 run_pua() {
