@@ -31,6 +31,18 @@
       "type": "boolean",
       "description": "Offline mode — disable all network calls (heartbeat, feedback upload)",
       "default": false
+    },
+    "review_net_threshold": {
+      "type": "integer",
+      "description": "Churn gate: net changed lines (added+removed) that trigger mandatory review (churn-gate.sh)",
+      "minimum": 1,
+      "default": 400
+    },
+    "review_gross_threshold": {
+      "type": "integer",
+      "description": "Churn gate: gross churned lines (every touched line, including re-edits) that trigger mandatory review (churn-gate.sh)",
+      "minimum": 1,
+      "default": 800
     }
   },
   "additionalProperties": false
