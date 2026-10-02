@@ -142,7 +142,7 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup-pua-loop.sh" "$ARGUMENTS" --completion
 不可能完成时使用（需外部权限、根本性需求变更）。删除状态文件，loop 终止。
 
 ### `<loop-pause>` — 暂停
-需要用户补全配置时使用。状态保留，新会话自动恢复。
+需要用户补全配置时使用。状态保留（active: false）。恢复方式：编辑该状态文件把 `active` 改回 `true`，或删除后重新运行 setup-pua-loop——当前版本 reopen Claude Code 不会自动恢复。
 输出前先写进度到 `.claude/pua-loop-context.md`。
 
 ### 禁止

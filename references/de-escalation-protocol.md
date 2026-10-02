@@ -87,7 +87,7 @@
 
 ### 注入方式
 
-这些换框提示由 **skill prompt 层**根据当前 failure_count 自动输出，不依赖 hook 检测。Hook 只负责提供 failure_count 和 pattern 分类，LLM 根据这些结构化信号自行决定使用哪层换框。
+这些换框提示由 **skill prompt 层**根据当前压力分（score）与失败连击自动输出，不依赖 hook 检测。Hook 只负责提供 score、失败计数和 pattern 分类（v3 评分制：只读探测白名单与环境错误不产生压力分，验证成功回血 +3，同签名重复渐进加权），LLM 根据这些结构化信号自行决定使用哪层换框。
 
 ---
 
@@ -116,7 +116,7 @@
 
 ### failure-detector.sh (Hook Layer)
 - 已实现：错误签名收集、模式分类（SPINNING/EXPLORING/MIXED）、突破检测、降压注入
-- 状态文件：`~/.pua/.error_history.jsonl`、`~/.pua/.peak_pressure_level`
+- 状态文件：`~/.pua/sessions/<session_id>.json`（canonical：score/count/peak_level/签名历史，按会话隔离）、`~/.pua/loop-memory.json`（跨会话 loop 前科，TTL 30 天）；`~/.pua/.failure_count`、`~/.pua/.peak_pressure_level` 为 legacy 信息镜像
 
 ### SKILL.md (Prompt Layer)
 - 加载本文件后，LLM 根据 failure_count + pattern 类型自行选择换框层级

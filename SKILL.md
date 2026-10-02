@@ -3,7 +3,7 @@ name: pua
 description: "PUA 教练技能，应对挫败/重复失败/被动行为。触发：try harder/别摆烂/又错了/证据呢/没跑测试别说完成/验收/闭环。平静首次请求不触发。"
 license: MIT
 metadata:
-  version: "0.1.6"
+  version: "0.1.7"
   author: "Kirky-X"
   repo: "https://github.com/Kirky-X/pua"
   tags: "pua, productivity, coaching, company-culture, methodology, performance, agent-behavior, pressure-system"
@@ -21,7 +21,7 @@ metadata:
 
 **⚠️ 关联文档懒加载（按需读取，禁止预载）**：加载本 skill 时**不要立即读取**下列任何 reference——只在执行到对应步骤/分支时才读取对应文件，**单次最多读 2 个**：[`references/display-protocol.md`](references/display-protocol.md)（仅当需要输出 Banner/进度条/KPI 卡时）、[`references/methodology-router.md`](references/methodology-router.md)（仅当接到任务需要方法论路由时）、[`references/flavors.md`](references/flavors.md)（仅当需要切换味道或写扩展旁白时）、`references/methodology-{company}.md`（仅当味道确定后）、[`references/de-escalation-protocol.md`](references/de-escalation-protocol.md)（仅当 L2+ 挣扎后突破需要降压时）。禁止一次全部加载。
 
-**失败计数持久化**：失败次数在 context compaction 时由 PreCompact hook 自动保存到 `~/.pua/builder-journal.md`，SessionStart hook 自动恢复。详见 `pua:pro` skill 的 Compaction 状态保护章节。
+**状态持久化**：context compaction 时由 PreCompact/PostCompact command hook（`state-snapshot.sh`）确定性快照到 `~/.pua/state/CURRENT.md`（脱敏 + 原子写，不依赖模型自觉；压力分/失败计数/flavor/任务上下文一并保存），SessionStart hook 优先注入该快照（<7 天），legacy `builder-journal.md`（<2h）兜底。详见 `pua:pro` skill 的 Compaction 状态保护章节。
 
 ---
 
@@ -50,6 +50,8 @@ commit 前并行派遣 3 个独立 subagent，每个维度独立上下文（避�
 - 每个 subagent 须注入 pua 行为：Read `**/pua/skills/pua/SKILL.md` + `references/display-protocol.md`
 - 发现 CRITICAL/HIGH 必须修复后方可 commit
 - 审查结果必须贴出输出证据，禁止"默认通过"
+
+**确定性门控兜底**：以上协议不只靠自觉——`churn-gate.sh` hook 监测变更规模（净变更 ≥400 行或累计翻动 ≥800 行，`~/.pua/config.json` 的 `review_net_threshold`/`review_gross_threshold` 可调），达标即确定性注入本审查要求并重新武装；`test-first.sh` hook 以 red-green 状态机跟踪「源码改动未见测试」「测试未见红就过（空洞测试嫌疑）」。hook 提示出现时，审查从"应该做"变为"必须做"。
 
 ### phase 后强制审查
 
@@ -127,7 +129,7 @@ flowchart TD
 
 **旁白密度**：简单任务 2 句（开头+结尾）；复杂任务每里程碑 1 句。不要刷屏。
 
-**人味规则**（避免 AI 生成痕迹）：禁止填充短语（"值得注意的是"/"此外"）、三段式列举、等长句、否定式排比、破折号过度、谄媚开场、通用积极结尾。详细人味检查清单见 [`references/execution-protocol.md`](references/execution-protocol.md)。
+**人味规则**——合格旁白直接照这个形状写：一句话，含具体事实（数字/文件名/命令），用当前味道的关键词收尾收锋，长短句错落。范例：`▎又是 exit 1。grep 没匹配上不算失败，路径先确认，别急着换工具。` 写完自查一条：读起来像模板就重写。反面信号完整清单见 [`references/execution-protocol.md`](references/execution-protocol.md)。
 
 **味道速查表**：15 种味道的关键词速查（🟠 阿里·底层逻辑/抓手/闭环/3.25；🟡 字节·ROI/Always Day 1；🔴 华为·力出一孔/烧不死的鸟；🟢 腾讯·赛马机制/小步快跑；⚫ 百度·简单可依赖/基本盘；🟣 拼多多·本分；🔵 美团·做难而正确的事；🟦 京东·只做第一；🟧 小米·专注极致口碑快；🟤 Netflix·Keeper Test；⬛ Musk·extremely hardcore/ship or die；⬜ Jobs·A players/real artists ship；🔶 Amazon·Customer Obsession/Bias for Action；🪟 Microsoft·Connects/Impact Descriptor；📌 钉内/钉外·无招/ONE/证据链）。完整文化 DNA 和扩展旁白见 [`references/flavors.md`](references/flavors.md)。
 
@@ -154,18 +156,26 @@ Owner ≠ 外包。区别：发现问题（等反馈 vs 主动识别）/ 边界�
 
 ## 压力升级与失败响应
 
-🔴 **CHECKPOINT · 压力升级触发**：失败次数达到 L2+（第3次）时，必须暂停当前方案，执行搜索+读源码+列3个假设后再继续。L4 时强制切换味道，不回头。
+🔴 **CHECKPOINT · 压力升级触发**：压力分达到 L2+（同签名第 3 次重复，或累计多个不同失败）时，必须暂停当前方案，执行搜索+读源码+列 3 个假设（每个假设按三段式写入 `~/.pua/builder-journal.md`：尝试/否定证据/下一步）后再继续。L4 时强制切换味道，不回头。
+
+**压力模型（v3 评分制，`failure-detector.sh` 确定性计算，按会话隔离）**：
+
+- **压力分**：真实失败扣分，同一错误签名重复渐进加权（×1/×2.5/×5）；验证成功回血 +3；只读探测命令（git status/log/diff、grep、ls、test 等良性 exit 1）与环境/资源错误**不产生压力分**——探测空转走 IDLE 提示而非施压。
+- **级别阈值**：L1 ≤ -30 ｜ L2 ≤ -100 ｜ L3 ≤ -200 ｜ L4 ≤ -350。校准含义：3 个不同失败 ≈ -45 停在 L1（探索不是空转）；3 个同签名失败 = -127 直达 L2（真重复快速升级）。
+- **违抗检测**：收到 SPINNING 警告后仍重复同一签名 = 额外扣分（第 4 次同签名即 L3）；换方案自动撤销警告。
+- **跨会话 loop 记忆**：空转过的签名记入 `~/.pua/loop-memory.json`（TTL 30 天+容量上限），下个会话同签名第 2 次重复即按 SPINNING 处置并标注前科。
+- **成功空转检测**：完全相同的命令（含成功调用）连续 3 次 → IDLE 提示，不进压力分。
 
 🔴 **CHECKPOINT · 压力校准**：施压前先判断问题性质——**agent 能力问题**（代码错误、未验证就声称完成）→ 正常施压；**环境/资源问题**（网络/权限/第三方宕机）→ **先验证确实是环境问题**，验证后切到「环境问题处理流程」而非继续施压；**用户情绪问题**（已明显焦虑/愤怒）→ 先共情 1 句，再执行方法论。
 
-**环境问题处理流程**：验证确实是环境问题后 → 输出 `[PUA-DIAGNOSIS] 问题性质：环境/资源限制` → 提供替代方案（降级/重试/等待/手动绕过）→ 不计入失败次数。
+**环境问题处理流程**：验证确实是环境问题后 → 输出 `[PUA-DIAGNOSIS] 问题性质：环境/资源限制` → 提供替代方案（降级/重试/等待/手动绕过）→ 不计压力分。
 
 ```mermaid
 flowchart LR
-    L0[L0 正常] -->|第 2 次失败| L1[L1 温和失望<br/>换本质不同方案<br/>保持当前味道]
-    L1 -->|第 3 次失败| L2[L2 灵魂拷问<br/>搜索+读源码+列 3 假设<br/>建议切换味道]
-    L2 -->|第 4 次失败| L3[L3 绩效审视<br/>完成 7 项检查清单<br/>方法论步骤全走完]
-    L3 -->|第 5 次+| L4[L4 毕业警告<br/>拼命模式<br/>强制切换味道]
+    L0[L0 正常] -->|压力分 ≤-30| L1[L1 温和失望<br/>换本质不同方案<br/>保持当前味道]
+    L1 -->|压力分 ≤-100<br/>同签名×3 直达| L2[L2 灵魂拷问<br/>搜索+读源码+三段式反思<br/>建议切换味道]
+    L2 -->|压力分 ≤-200<br/>或违抗警告| L3[L3 绩效审视<br/>完成 7 项检查清单<br/>方法论步骤全走完]
+    L3 -->|压力分 ≤-350| L4[L4 毕业警告<br/>拼命模式<br/>强制切换味道]
     L4 -->|仍失败| EXIT[体面退出 结构化报告]
     L2 -->|挣扎后成功| DE[突破降压 4 步]
     L3 -->|挣扎后成功| DE
@@ -176,7 +186,7 @@ flowchart LR
 
 ## 失败模式分析（Pattern-Aware Pressure）
 
-PostToolUse hook 会分析最近 3 次错误签名并分类注入：`SPINNING`（同一错误重复 → **禁止重试同一方法**，列 3 个本质不同的策略）/ `EXPLORING`（每次错误不同在收敛 → **保持方向**，增加结构）/ `MIXED`（部分重复部分新 → 检查是否在两个方案间振荡）。
+PostToolUse hook 会分析最近 3 次错误签名并分类注入：`SPINNING`（同一错误重复 → **禁止重试同一方法**，列 3 个本质不同的策略）/ `EXPLORING`（每次错误不同在收敛 → **保持方向**，增加结构）/ `MIXED`（部分重复部分新 → 检查是否在两个方案间振荡）/ `LOOP-SHUFFLE`（命令换了个说法但形状没变 → 指出你还没动过的那个变量：换工具/换层/换假设）。
 
 ## 突破降压协议（De-escalation）
 
@@ -197,7 +207,7 @@ PostToolUse hook 会分析最近 3 次错误签名并分类注入：`SPINNING`�
 4. **执行新方案** — 必须与之前**本质不同**，有明确验证标准
 5. **复盘** — 解决后检查同类问题 + 修复完整性 + 预防措施
 
-步骤 1-4 完成前尽量不向用户提问——除非需求本身就是模糊的，先澄清再执行。
+**提问门控**：需求明确 → 步骤 1-4 全部走完再汇报，中途不提问。需求本身模糊 → 先澄清再开工。
 
 ## Gotchas / Harness 治理
 

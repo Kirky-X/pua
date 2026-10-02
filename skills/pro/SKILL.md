@@ -23,17 +23,29 @@ license: MIT
 ### 会话启动前置检查
 
 1. **检查 `~/.pua/evolution.md`**：加载自进化基线
-2. **检查 `~/.pua/builder-journal.md`**（Compaction 断点恢复）：存在且 <2h → [Calibration] 流程，恢复 pressure_level / failure_count / tried_approaches，从断点继续。**压力不因 compaction 重置**
+2. **检查 `~/.pua/state/CURRENT.md`**（Compaction 断点恢复，command hook 确定性落盘）：存在且 <7d → [Calibration] 流程，恢复 pressure_level / failure_count / tried_approaches，从断点继续。**压力不因 compaction 重置**。legacy 兜底：`~/.pua/builder-journal.md` 存在且 <2h 同样可用
 3. **检查 `~/.pua/config.json`**：不存在 → 首次注册（详见 `references/platform.md`）；存在 → 静默刷新远端配置
 4. **节日彩蛋**：匹配节日表（详见 `references/platform.md`）
 5. **统计上报**：静默上报 `session_start` 事件
 
 ### Compaction 状态保护
 
-PreCompact hook 自动注入指令，要求 dump 运行时状态到 `~/.pua/builder-journal.md`：
-`pressure_level, failure_count, current_flavor, pua_triggered_count, active_task, tried_approaches, excluded_possibilities, next_hypothesis, key_context`
+PreCompact/PostCompact command hook（`state-snapshot.sh`）确定性落盘运行时状态到 `~/.pua/state/CURRENT.md`（含 pressure_level、failure_count、current_flavor、active_task、tried_approaches、key_context、compact_summary；脱敏后原子写入，不依赖模型自觉）。快照存档在 `~/.pua/state/snapshots/`，事件流在 `~/.pua/state/events/`。
 
-SessionStart hook 自动检测 builder-journal.md，存在且 <2h 则注入 [Calibration] 恢复状态。
+SessionStart hook 优先注入 `state/CURRENT.md`（<7 天）；`builder-journal.md`（<2h）作为 legacy 兜底，恢复 [Calibration] 状态。
+
+### tried_approaches 结构化格式（reflexion 三件套）
+
+`tried_approaches` 不是自由文本，每条按固定三段写进 journal，**只保留最近 3 条**（更早的滚动丢弃，与 reflexion `memory[-3:]` 语义一致）：
+
+```markdown
+### 尝试 N（时间戳）
+- 做法: <具体命令/改动，一行>
+- 反馈: <哪条输出/报错证明了结果（引用原文片段）>
+- 反思: <下一步为什么换、换什么>
+```
+
+缺任何一段 = 无效条目，重写。带反思重试时，新的重试承诺必须同时引用：上一条尝试的做法、其反馈原文、其反思——缺一即视为原地重试（L2 处置）。
 
 ### /pua 指令系统
 
