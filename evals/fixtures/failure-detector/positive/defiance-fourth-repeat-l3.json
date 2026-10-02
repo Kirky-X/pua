@@ -1,0 +1,60 @@
+{
+  "name": "defiance-fourth-repeat-l3",
+  "description": "defy the SPINNING warning on the 4th repeat: -127-(75+25)=-227 → L3 + defiance note",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: same",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-def"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: same",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-def"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: same",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-def"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: same",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-def"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA L3",
+    "违抗警告"
+  ],
+  "expect_stdout_not_contains": [],
+  "expect_state": {
+    "count": 4,
+    "score": -227,
+    "peak_level": 3
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "exit-code-string-malformed",
+  "description": "exit_code as a non-numeric string is treated as an error (not '0', not '') without crashing",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: EPROTO malformed handshake",
+        "exit_code": "oops"
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-e5"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA L"
+  ],
+  "expect_state": {
+    "count": 1,
+    "score": -15
+  }
+}

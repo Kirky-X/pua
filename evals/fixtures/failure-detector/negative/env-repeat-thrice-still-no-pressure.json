@@ -1,0 +1,50 @@
+{
+  "name": "env-repeat-thrice-still-no-pressure",
+  "description": "repeated environment errors must never accumulate into pressure",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 124
+      },
+      "tool_input": {
+        "command": "sleep 999"
+      },
+      "session_id": "fx-n12"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "curl: (7) Failed to connect to localhost port 9: Connection refused",
+        "exit_code": 7
+      },
+      "tool_input": {
+        "command": "curl http://localhost:9/api"
+      },
+      "session_id": "fx-n12"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "tar: data: Cannot write: No space left on device",
+        "exit_code": 2
+      },
+      "tool_input": {
+        "command": "tar czf backup.tgz data"
+      },
+      "session_id": "fx-n12"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_stdout_not_contains": [
+    "PUA L"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0,
+    "peak_level": 0
+  }
+}

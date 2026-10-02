@@ -1,0 +1,36 @@
+{
+  "name": "chinese-error-text-sig",
+  "description": "Chinese error text: SIG_RE misses it, first-line fallback forms a stable signature; 2 repeats → L1",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "错误：编译失败：类型不匹配 expected str got int",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "cargo build"
+      },
+      "session_id": "fx-e6"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "错误：编译失败：类型不匹配 expected str got int",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "cargo build"
+      },
+      "session_id": "fx-e6"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA L1"
+  ],
+  "expect_stdout_not_contains": [],
+  "expect_state": {
+    "count": 2,
+    "score": -52
+  }
+}

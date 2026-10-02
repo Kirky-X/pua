@@ -1,0 +1,17 @@
+{
+  "name": "empty-input-graceful",
+  "description": "empty stdin: hook must exit cleanly",
+  "inputs": [
+    {
+      "_raw": ""
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

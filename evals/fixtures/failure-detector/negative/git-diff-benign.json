@@ -1,0 +1,26 @@
+{
+  "name": "git-diff-benign",
+  "description": "benign exit 1: `git diff` is whitelisted via PROBE_GIT_SUB, differences are never a failure",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "diff --git a/x b/x\nindex 0000001..0000002 100644\n--- a/x\n+++ b/x",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "git diff HEAD~1"
+      },
+      "session_id": "fx-n16"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA L",
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

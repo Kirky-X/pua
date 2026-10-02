@@ -1,0 +1,26 @@
+{
+  "name": "first-real-failure-below-threshold",
+  "description": "a single real failure (-15) stays below L1: no intervention on the first mistake",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: command failed",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-n15"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA L",
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_state": {
+    "count": 1,
+    "score": -15
+  }
+}

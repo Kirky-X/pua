@@ -1,0 +1,81 @@
+{
+  "name": "l4-six-identical-repeat",
+  "description": "6 identical repeats with defiance: -427 → L4 graduation warning + methodology switch",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: same",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-l4"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: same",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-l4"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: same",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-l4"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: same",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-l4"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: same",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-l4"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: same",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-l4"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA L4"
+  ],
+  "expect_stdout_not_contains": [],
+  "expect_state": {
+    "count": 6,
+    "score": -427,
+    "peak_level": 4
+  }
+}

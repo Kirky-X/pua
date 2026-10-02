@@ -1,0 +1,49 @@
+{
+  "name": "three-same-sig-l2-spinning",
+  "description": "3 identical signatures: 15+37+75=-127 → L2 + SPINNING (progressive weighting)",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: npm ERR missing script build",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-spin"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: npm ERR missing script build",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-spin"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: npm ERR missing script build",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-spin"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA L2",
+    "Pattern: SPINNING"
+  ],
+  "expect_stdout_not_contains": [],
+  "expect_state": {
+    "count": 3,
+    "score": -127,
+    "peak_level": 2
+  }
+}

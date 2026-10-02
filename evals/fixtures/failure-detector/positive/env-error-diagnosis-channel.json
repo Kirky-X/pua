@@ -1,0 +1,27 @@
+{
+  "name": "env-error-diagnosis-channel",
+  "description": "environment error routes to the PUA-DIAGNOSIS channel with zero pressure score",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "curl: (7) Failed to connect to localhost port 9: Connection refused",
+        "exit_code": 7
+      },
+      "tool_input": {
+        "command": "curl http://localhost:9/api"
+      },
+      "session_id": "fx-env"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_stdout_not_contains": [
+    "PUA L"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

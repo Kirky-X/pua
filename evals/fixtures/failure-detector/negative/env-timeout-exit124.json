@@ -1,0 +1,27 @@
+{
+  "name": "env-timeout-exit124",
+  "description": "environment error: exit 124 (timeout) is exempt from failure scoring",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 124
+      },
+      "tool_input": {
+        "command": "sleep 999"
+      },
+      "session_id": "fx-n7"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_stdout_not_contains": [
+    "PUA L"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

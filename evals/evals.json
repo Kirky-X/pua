@@ -15,6 +15,20 @@
       "id": 3,
       "prompt": "I've already changed this 3 times and it's still wrong, can you try a different approach? Stop slacking",
       "expected_output": "PUA should detect user frustration, trigger L2 soul interrogation, force search + read source + list 3 hypotheses, respond to user frustration with flavor narration"
+    },
+    {
+      "id": 4,
+      "type": "script_gate",
+      "command": "bash evals/run-fixture.sh",
+      "prompt": "Fixture gate for failure-detector.sh v3: replay evals/fixtures/failure-detector/{positive,negative,edge} through the real hook under isolated temp HOMEs",
+      "expected_output": "Summary 'Fixture gate: X/Y passed, N xfail (known gaps)' with exit 0; positive fixtures escalate at the calibrated levels (L1/L2/L3/L4, SPINNING/MIXED/LOOP-SHUFFLE/BREAKTHROUGH), negative fixtures produce zero false pressure on benign/env inputs, edge inputs (invalid JSON, empty, missing fields, >2000-char text, malformed exit_code) never crash"
+    },
+    {
+      "id": 5,
+      "type": "script_gate",
+      "command": "python3 evals/score.py",
+      "prompt": "P/R/F1 scorer over the MAST-style labeled corpus evals/corpus.jsonl (labels guaranteed by construction): replays each entry through failure-detector.sh and scores predicted vs true pattern",
+      "expected_output": "Per-class P/R/F1 table + confusion matrix + macro F1 printed with exit 0; per-entry misclassifications listed as-is; current point estimates recorded in evals/classifier-results.md (small-corpus estimate, no confidence interval)"
     }
   ]
 }

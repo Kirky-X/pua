@@ -1,0 +1,49 @@
+{
+  "name": "three-different-errors-exploring-l1",
+  "description": "3 different real errors: -45 → L1 with EXPLORING (not L2: exploration is not spinning)",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: relation users does not exist",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "psql -c 'select 1'"
+      },
+      "session_id": "fx-exp"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: column email has no default",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "psql -c 'insert'"
+      },
+      "session_id": "fx-exp"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: duplicate key value violates unique constraint",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "psql -c 'upsert'"
+      },
+      "session_id": "fx-exp"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA L1",
+    "Pattern: EXPLORING"
+  ],
+  "expect_stdout_not_contains": [],
+  "expect_state": {
+    "count": 3,
+    "score": -45,
+    "peak_level": 1
+  }
+}

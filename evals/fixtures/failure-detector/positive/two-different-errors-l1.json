@@ -1,0 +1,37 @@
+{
+  "name": "two-different-errors-l1",
+  "description": "2 different real errors: 15+15=-30 → L1 (state count 2, score -30, peak 1)",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: alpha stage failed",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-l1a"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: beta stage failed",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "cargo test"
+      },
+      "session_id": "fx-l1a"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA L1"
+  ],
+  "expect_stdout_not_contains": [],
+  "expect_state": {
+    "count": 2,
+    "score": -30,
+    "peak_level": 1
+  }
+}

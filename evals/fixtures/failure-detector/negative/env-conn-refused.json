@@ -1,0 +1,27 @@
+{
+  "name": "env-conn-refused",
+  "description": "environment error: connection refused is exempt",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "curl: (7) Failed to connect to localhost port 5432: Connection refused",
+        "exit_code": 7
+      },
+      "tool_input": {
+        "command": "curl http://localhost:5432/health"
+      },
+      "session_id": "fx-n8"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_stdout_not_contains": [
+    "PUA L"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

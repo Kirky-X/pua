@@ -1,0 +1,50 @@
+{
+  "name": "same-cmd-success-nudge",
+  "description": "3rd identical successful command → IDLE nudge (SAMECMD): success repetition is tracked on all Bash calls",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "ok",
+        "exit_code": 0
+      },
+      "tool_input": {
+        "command": "make check"
+      },
+      "session_id": "fx-idle2"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "ok",
+        "exit_code": 0
+      },
+      "tool_input": {
+        "command": "make check"
+      },
+      "session_id": "fx-idle2"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "ok",
+        "exit_code": 0
+      },
+      "tool_input": {
+        "command": "make check"
+      },
+      "session_id": "fx-idle2"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA IDLE"
+  ],
+  "expect_stdout_not_contains": [
+    "PUA L",
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

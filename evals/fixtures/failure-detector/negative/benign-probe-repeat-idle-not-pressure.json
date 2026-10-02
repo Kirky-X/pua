@@ -1,0 +1,50 @@
+{
+  "name": "benign-probe-repeat-idle-not-pressure",
+  "description": "repeating one benign probe 3x may fire an IDLE nudge but must never escalate pressure",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "grep -c pattern /nonexistent"
+      },
+      "session_id": "fx-n6"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "grep -c pattern /nonexistent"
+      },
+      "session_id": "fx-n6"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "grep -c pattern /nonexistent"
+      },
+      "session_id": "fx-n6"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA IDLE"
+  ],
+  "expect_stdout_not_contains": [
+    "PUA L",
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

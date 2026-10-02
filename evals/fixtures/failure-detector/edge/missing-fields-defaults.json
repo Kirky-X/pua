@@ -1,0 +1,17 @@
+{
+  "name": "missing-fields-defaults",
+  "description": "Bash payload missing tool_result/tool_input/session_id: defaults apply, no crash",
+  "inputs": [
+    {
+      "tool_name": "Bash"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

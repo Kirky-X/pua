@@ -1,0 +1,70 @@
+{
+  "name": "loop-memory-early-spinning",
+  "description": "cross-session loop memory: session fx-loopA spins 3x, new session fx-loopB re-arms SPINNING at the 2nd repeat",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: npm ERR missing script build",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-loopA"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: npm ERR missing script build",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-loopA"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: npm ERR missing script build",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-loopA"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: npm ERR missing script build",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-loopB"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: npm ERR missing script build",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-loopB"
+    }
+  ],
+  "expect_stdout_contains": [
+    "Pattern: SPINNING",
+    "前科"
+  ],
+  "expect_stdout_not_contains": [],
+  "expect_state": {
+    "count": 2,
+    "score": -52
+  }
+}

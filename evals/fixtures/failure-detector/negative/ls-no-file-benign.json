@@ -1,0 +1,26 @@
+{
+  "name": "ls-no-file-benign",
+  "description": "benign exit 2: ls on a missing path stays in the probe third-state even though the text matches a generic error",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "ls: cannot access '/nonexistent-dir': No such file or directory",
+        "exit_code": 2
+      },
+      "tool_input": {
+        "command": "ls /nonexistent-dir"
+      },
+      "session_id": "fx-n4"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA L",
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

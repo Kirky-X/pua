@@ -1,0 +1,27 @@
+{
+  "name": "env-oom-killed137",
+  "description": "environment error: exit 137 (OOM kill) is exempt",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "Killed",
+        "exit_code": 137
+      },
+      "tool_input": {
+        "command": "npm run build:prod"
+      },
+      "session_id": "fx-n10"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_stdout_not_contains": [
+    "PUA L"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "non-bash-tool-no-state",
+  "description": "non-Bash tool: silent exit, no session state file created",
+  "inputs": [
+    {
+      "tool_name": "Read",
+      "tool_result": "some content",
+      "session_id": "fx-e7"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

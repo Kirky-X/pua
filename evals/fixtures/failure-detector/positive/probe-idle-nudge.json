@@ -1,0 +1,50 @@
+{
+  "name": "probe-idle-nudge",
+  "description": "3rd identical read-only probe → IDLE nudge (PROBE), still zero pressure",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "grep -c pattern /nonexistent"
+      },
+      "session_id": "fx-idle"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "grep -c pattern /nonexistent"
+      },
+      "session_id": "fx-idle"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "grep -c pattern /nonexistent"
+      },
+      "session_id": "fx-idle"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA IDLE"
+  ],
+  "expect_stdout_not_contains": [
+    "PUA L",
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

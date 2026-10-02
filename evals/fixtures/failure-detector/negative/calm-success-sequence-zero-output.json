@@ -1,0 +1,49 @@
+{
+  "name": "calm-success-sequence-zero-output",
+  "description": "calm success sequence: zero output, zero pressure",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "built in 3.2s",
+        "exit_code": 0
+      },
+      "tool_input": {
+        "command": "make build"
+      },
+      "session_id": "fx-n14"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "3 tests passed",
+        "exit_code": 0
+      },
+      "tool_input": {
+        "command": "npm test"
+      },
+      "session_id": "fx-n14"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "nothing to commit, working tree clean",
+        "exit_code": 0
+      },
+      "tool_input": {
+        "command": "git status"
+      },
+      "session_id": "fx-n14"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA L",
+    "PUA-DIAGNOSIS",
+    "PUA IDLE"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

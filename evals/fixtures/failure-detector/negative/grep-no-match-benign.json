@@ -1,0 +1,27 @@
+{
+  "name": "grep-no-match-benign",
+  "description": "benign exit 1: grep with no match is a read-only probe, never a failure",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "grep -c pattern /nonexistent"
+      },
+      "session_id": "fx-n1"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA L",
+    "PUA-DIAGNOSIS",
+    "PUA IDLE"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

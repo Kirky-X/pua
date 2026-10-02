@@ -1,0 +1,47 @@
+{
+  "name": "env-errors-not-counted-toward-pressure",
+  "description": "2 env errors + 1 real error: only the real one may count (count 1, score -15, below L1)",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "ECONNREFUSED",
+        "exit_code": 111
+      },
+      "tool_input": {
+        "command": "curl http://10.255.255.1:1/x"
+      },
+      "session_id": "fx-n13"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "npm ERR! network request to registry.npmjs.org failed, reason: getaddrinfo ENOTFOUND",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm install"
+      },
+      "session_id": "fx-n13"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: alpha stage failed",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-n13"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA L"
+  ],
+  "expect_state": {
+    "count": 1,
+    "score": -15
+  }
+}

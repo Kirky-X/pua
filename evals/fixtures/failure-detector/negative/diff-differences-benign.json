@@ -1,0 +1,26 @@
+{
+  "name": "diff-differences-benign",
+  "description": "benign exit 1: diff reporting differences is a read-only probe",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "1c1\n< old-value\n---\n> new-value",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "diff config/a.yaml config/b.yaml"
+      },
+      "session_id": "fx-n2"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA L",
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

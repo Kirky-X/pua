@@ -1,0 +1,27 @@
+{
+  "name": "env-perm-denied-nonprobe",
+  "description": "environment error: Permission denied on a non-probe command is exempt",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "bash: ./deploy.sh: Permission denied",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "./deploy.sh prod"
+      },
+      "session_id": "fx-n11"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_stdout_not_contains": [
+    "PUA L"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

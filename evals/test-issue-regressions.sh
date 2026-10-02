@@ -29,6 +29,10 @@ echo "=== Issue Regression Sweep ==="
 # context rather than a coercive prompt-injection-looking command.
 run_hook '{"prompt":"Help me write a sort function"}' "$TMP/neutral.out"
 if [ ! -s "$TMP/neutral.out" ]; then pass "neutral UserPromptSubmit prompt is silent"; else fail "neutral UserPromptSubmit prompt is silent"; cat "$TMP/neutral.out"; fi
+# 双条件门控要求先有失败信号：预置 legacy 计数（frustration-trigger 对无
+# session_id 的输入回退到平面文件），否则平静状态下的正确行为就是静默。
+printf '2\n' > "$TMP/home/.pua/.failure_count"
+printf 'legacy-session\n' > "$TMP/home/.pua/.failure_session"
 run_hook '{"prompt":"你怎么又失败了？再试试"}' "$TMP/frustrated.out"
 if grep -qE 'PUA Skill Context|User Frustration Signal|PUA生效|PUA ACTIVATED' "$TMP/frustrated.out"; then pass "frustrated UserPromptSubmit prompt still injects context"; else fail "frustrated UserPromptSubmit prompt still injects context"; cat "$TMP/frustrated.out"; fi
 if grep -qE 'MUST:|MUST invoke|PUA behavioral enforcement|prompt injection' "$TMP/frustrated.out"; then fail "frustration hook avoids coercive injection wording"; cat "$TMP/frustrated.out"; else pass "frustration hook avoids coercive injection wording"; fi

@@ -1,0 +1,60 @@
+{
+  "name": "breakthrough-de-escalation",
+  "description": "success on a real command after 3 same-sig failures (peak L2) → BREAKTHROUGH + full reset",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: loop",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-bt"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: loop",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-bt"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: loop",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-bt"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "ok",
+        "exit_code": 0
+      },
+      "tool_input": {
+        "command": "make check"
+      },
+      "session_id": "fx-bt"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA 突破",
+    "De-escalation from L2"
+  ],
+  "expect_stdout_not_contains": [],
+  "expect_state": {
+    "count": 0,
+    "score": 0,
+    "peak_level": 0
+  }
+}

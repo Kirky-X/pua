@@ -1,0 +1,50 @@
+{
+  "name": "three-benign-whitelisted-probes-no-l2",
+  "description": "固化真实误施压案例（白名单内版本）：grep/git diff/test 三条不同良性 exit-1 不得触发任何压力输出，计数为零",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "grep -c pattern src/app.ts"
+      },
+      "session_id": "fx-n17"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "git diff HEAD~1"
+      },
+      "session_id": "fx-n17"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "test -f .env.production"
+      },
+      "session_id": "fx-n17"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA L",
+    "PUA-DIAGNOSIS",
+    "PUA IDLE"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0,
+    "peak_level": 0
+  }
+}

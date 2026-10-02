@@ -1,0 +1,27 @@
+{
+  "name": "env-no-space",
+  "description": "environment error: ENOSPC is exempt even on a writing non-probe command",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "tar: data: Cannot write: No space left on device",
+        "exit_code": 2
+      },
+      "tool_input": {
+        "command": "tar czf backup.tgz data"
+      },
+      "session_id": "fx-n9"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_stdout_not_contains": [
+    "PUA L"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "three-different-benign-probes-no-l2",
+  "description": "固化真实误施压案例：连续 3 条不同良性 exit-1 命令（grep/diff/test）不得产生任何压力，v2 曾在此误触发 L2",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "grep -c pattern src/app.ts"
+      },
+      "session_id": "fx-n5"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "1c1\n< a\n---\n> b",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "diff out/expected.txt out/actual.txt"
+      },
+      "session_id": "fx-n5"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "test -f .env.production"
+      },
+      "session_id": "fx-n5"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA L",
+    "PUA-DIAGNOSIS",
+    "PUA IDLE"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0,
+    "peak_level": 0
+  }
+}

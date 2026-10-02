@@ -169,15 +169,15 @@ OUTPUT=$(echo '{"tool_name":"Bash","tool_result":{"content":"ok","exit_code":0},
   bash "${HOOKS_DIR}/failure-detector.sh" 2>/dev/null || true)
 assert_output_not_contains "Success: no pressure" "PUA L" "$OUTPUT"
 
-# Test: Bash tool with error → first failure, no output (count=1 < 2)
+# Test: Bash tool with error → first failure, no output (score -15 → level 0)
 # Clean state first
-rm -f "${TEST_PUA_HOME}/.pua/.failure_count" "${TEST_PUA_HOME}/.pua/.failure_session"
+rm -rf "${TEST_PUA_HOME}/.pua/sessions" "${TEST_PUA_HOME}/.pua/loop-memory.json"
 OUTPUT=$(echo '{"tool_name":"Bash","tool_result":{"content":"error: command failed","exit_code":1},"session_id":"test_fd_err"}' | \
   bash "${HOOKS_DIR}/failure-detector.sh" 2>/dev/null || true)
 assert_output_not_contains "First failure: no intervention" "PUA L" "$OUTPUT"
 
 # Test: 2 consecutive failures → L1 pressure
-rm -f "${TEST_PUA_HOME}/.pua/.failure_count" "${TEST_PUA_HOME}/.pua/.failure_session"
+rm -rf "${TEST_PUA_HOME}/.pua/sessions" "${TEST_PUA_HOME}/.pua/loop-memory.json"
 echo '{"tool_name":"Bash","tool_result":{"content":"error: fail","exit_code":1},"session_id":"test_fd_l1"}' | \
   bash "${HOOKS_DIR}/failure-detector.sh" >/dev/null 2>&1 || true
 OUTPUT=$(echo '{"tool_name":"Bash","tool_result":{"content":"error: fail again","exit_code":1},"session_id":"test_fd_l1"}' | \
@@ -186,7 +186,7 @@ assert_output_contains "2nd failure → L1 pressure" "PUA L1" "$OUTPUT"
 
 # Test: always_on=false → skip injection
 echo '{"always_on":false,"flavor":"alibaba"}' > "$PUA_CONFIG"
-rm -f "${TEST_PUA_HOME}/.pua/.failure_count" "${TEST_PUA_HOME}/.pua/.failure_session"
+rm -rf "${TEST_PUA_HOME}/.pua/sessions" "${TEST_PUA_HOME}/.pua/loop-memory.json"
 echo '{"tool_name":"Bash","tool_result":{"content":"error","exit_code":1},"session_id":"test_off"}' | \
   bash "${HOOKS_DIR}/failure-detector.sh" >/dev/null 2>&1 || true
 OUTPUT=$(echo '{"tool_name":"Bash","tool_result":{"content":"error","exit_code":1},"session_id":"test_off"}' | \
@@ -198,6 +198,102 @@ echo '{"always_on":true,"flavor":"alibaba"}' > "$PUA_CONFIG"
 OUTPUT=$(echo 'not json at all' | \
   bash "${HOOKS_DIR}/failure-detector.sh" 2>/dev/null || true)
 assert_exit "Invalid JSON: graceful exit" 0 $?
+
+# ══════════════════════════════════════════════════════════════════════════════
+echo ""
+echo "═══ Test Group: failure-detector v3 scoring model ═══"
+# ══════════════════════════════════════════════════════════════════════════════
+
+FD_RUN() {
+  echo "$1" | bash "${HOOKS_DIR}/failure-detector.sh" 2>/dev/null || true
+}
+FD_CLEAN() {
+  rm -rf "${TEST_PUA_HOME}/.pua/sessions" "${TEST_PUA_HOME}/.pua/loop-memory.json"
+}
+
+# Test: read-only probe whitelist — benign exit 1 never counts as failure
+FD_CLEAN
+for i in 1 2 3; do
+  OUTPUT=$(FD_RUN "{\"tool_name\":\"Bash\",\"tool_result\":{\"content\":\"\",\"exit_code\":1},\"tool_input\":{\"command\":\"grep -c p /nonexistent-$i\"},\"session_id\":\"t_probe\"}")
+done
+assert_output_not_contains "Benign probe exit 1: no pressure" "PUA" "$OUTPUT"
+
+# Test: read-only probe with redirection to a real file is NOT a probe
+FD_CLEAN
+echo '{"tool_name":"Bash","tool_result":{"content":"error: x","exit_code":1},"tool_input":{"command":"grep p in.txt > out.txt"},"session_id":"t_probe_w"}' | \
+  bash "${HOOKS_DIR}/failure-detector.sh" >/dev/null 2>&1 || true
+OUTPUT=$(FD_RUN '{"tool_name":"Bash","tool_result":{"content":"error: x","exit_code":1},"tool_input":{"command":"grep p in.txt > out.txt"},"session_id":"t_probe_w"}')
+assert_output_contains "Redirecting probe counts as failure → L1" "PUA L1" "$OUTPUT"
+
+# Test: 3 identical successful commands → IDLE nudge (no pressure level)
+FD_CLEAN
+FD_RUN '{"tool_name":"Bash","tool_result":{"content":"ok","exit_code":0},"tool_input":{"command":"make check"},"session_id":"t_idle"}' >/dev/null
+FD_RUN '{"tool_name":"Bash","tool_result":{"content":"ok","exit_code":0},"tool_input":{"command":"make check"},"session_id":"t_idle"}' >/dev/null
+OUTPUT=$(FD_RUN '{"tool_name":"Bash","tool_result":{"content":"ok","exit_code":0},"tool_input":{"command":"make check"},"session_id":"t_idle"}')
+assert_output_contains "3rd identical command → IDLE nudge" "PUA IDLE" "$OUTPUT"
+assert_output_not_contains "IDLE nudge carries no pressure level" "PUA L" "$OUTPUT"
+
+# Test: 3 identical error signatures → L2 SPINNING (progressive weighting)
+FD_CLEAN
+FD_RUN '{"tool_name":"Bash","tool_result":{"content":"error: npm ERR missing script build","exit_code":1},"session_id":"t_spin"}' >/dev/null
+FD_RUN '{"tool_name":"Bash","tool_result":{"content":"error: npm ERR missing script build","exit_code":1},"session_id":"t_spin"}' >/dev/null
+OUTPUT=$(FD_RUN '{"tool_name":"Bash","tool_result":{"content":"error: npm ERR missing script build","exit_code":1},"session_id":"t_spin"}')
+assert_output_contains "3rd same-sig failure → L2" "PUA L2" "$OUTPUT"
+assert_output_contains "SPINNING pattern detected" "SPINNING" "$OUTPUT"
+
+# Test: SPINNING writes cross-session loop memory
+TOTAL=$((TOTAL + 1))
+if [ -f "${TEST_PUA_HOME}/.pua/loop-memory.json" ] && grep -q "patterns" "${TEST_PUA_HOME}/.pua/loop-memory.json"; then
+  echo "  ✅ PASS: loop-memory.json written on SPINNING"
+  PASS=$((PASS + 1))
+else
+  echo "  ❌ FAIL: loop-memory.json missing after SPINNING"
+  FAIL=$((FAIL + 1))
+fi
+
+# Test: known-bad signature re-arms SPINNING at 2nd repeat in a NEW session
+FD_RUN '{"tool_name":"Bash","tool_result":{"content":"error: npm ERR missing script build","exit_code":1},"session_id":"t_spin2"}' >/dev/null
+OUTPUT=$(FD_RUN '{"tool_name":"Bash","tool_result":{"content":"error: npm ERR missing script build","exit_code":1},"session_id":"t_spin2"}')
+assert_output_contains "known-bad sig: SPINNING at 2nd repeat" "SPINNING" "$OUTPUT"
+
+# Test: session isolation — another session's failures don't leak pressure
+FD_CLEAN
+FD_RUN '{"tool_name":"Bash","tool_result":{"content":"error: a","exit_code":1},"session_id":"t_iso_a"}' >/dev/null
+FD_RUN '{"tool_name":"Bash","tool_result":{"content":"error: b","exit_code":1},"session_id":"t_iso_a"}' >/dev/null
+OUTPUT=$(FD_RUN '{"tool_name":"Bash","tool_result":{"content":"error: c","exit_code":1},"session_id":"t_iso_b"}')
+assert_output_not_contains "Session isolation: fresh sid starts at level 0" "PUA L" "$OUTPUT"
+
+# Test: breakthrough — success after 3+ failures at peak L2 → de-escalation
+FD_CLEAN
+for i in 1 2 3; do
+  FD_RUN '{"tool_name":"Bash","tool_result":{"content":"error: loop","exit_code":1},"session_id":"t_bt"}' >/dev/null
+done
+OUTPUT=$(FD_RUN '{"tool_name":"Bash","tool_result":{"content":"ok","exit_code":0},"tool_input":{"command":"make check"},"session_id":"t_bt"}')
+assert_output_contains "Breakthrough after struggle" "PUA 突破" "$OUTPUT"
+
+# Test: environment error (exit 124) → env channel, no pressure
+FD_CLEAN
+OUTPUT=$(FD_RUN '{"tool_name":"Bash","tool_result":{"content":"","exit_code":124},"tool_input":{"command":"sleep 999"},"session_id":"t_env"}')
+assert_output_contains "Env error → diagnosis channel" "PUA-DIAGNOSIS" "$OUTPUT"
+assert_output_not_contains "Env error: no pressure level" "PUA L" "$OUTPUT"
+
+# Test: defiance — 4th repeat after SPINNING warning hits L3
+FD_CLEAN
+for i in 1 2 3; do
+  FD_RUN '{"tool_name":"Bash","tool_result":{"content":"error: same","exit_code":1},"session_id":"t_def"}' >/dev/null
+done
+OUTPUT=$(FD_RUN '{"tool_name":"Bash","tool_result":{"content":"error: same","exit_code":1},"session_id":"t_def"}')
+assert_output_contains "Defied SPINNING warning → L3 by 4th repeat" "PUA L3" "$OUTPUT"
+
+# Test: legacy mirror files still written
+TOTAL=$((TOTAL + 1))
+if [ -f "${TEST_PUA_HOME}/.pua/.failure_count" ]; then
+  echo "  ✅ PASS: legacy .failure_count mirror written"
+  PASS=$((PASS + 1))
+else
+  echo "  ❌ FAIL: legacy .failure_count mirror missing"
+  FAIL=$((FAIL + 1))
+fi
 
 # ══════════════════════════════════════════════════════════════════════════════
 echo ""

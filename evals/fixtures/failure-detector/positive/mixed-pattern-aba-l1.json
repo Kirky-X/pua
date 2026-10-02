@@ -1,0 +1,49 @@
+{
+  "name": "mixed-pattern-aba-l1",
+  "description": "A,B,A partial repetition: -15-15-37=-67 → L1 MIXED",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: type E1",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-mix"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: type E2",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-mix"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: type E1",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-mix"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA L1",
+    "Pattern: MIXED"
+  ],
+  "expect_stdout_not_contains": [],
+  "expect_state": {
+    "count": 3,
+    "score": -67,
+    "peak_level": 1
+  }
+}

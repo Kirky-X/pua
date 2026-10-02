@@ -1,0 +1,115 @@
+{
+  "name": "loop-shuffle-l2",
+  "description": "9 calls, tool-shape loop npm/cargo/make ×3 with 9 distinct sigs → LOOP-SHUFFLE at L2",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: alpha",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm test"
+      },
+      "session_id": "fx-shuf"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: beta",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "cargo build"
+      },
+      "session_id": "fx-shuf"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: gamma",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make all"
+      },
+      "session_id": "fx-shuf"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: delta",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run lint"
+      },
+      "session_id": "fx-shuf"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: eps",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "cargo test"
+      },
+      "session_id": "fx-shuf"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: zeta",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make check"
+      },
+      "session_id": "fx-shuf"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: eta",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "npm run build"
+      },
+      "session_id": "fx-shuf"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: theta",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "cargo bench"
+      },
+      "session_id": "fx-shuf"
+    },
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "error: iota",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "make docs"
+      },
+      "session_id": "fx-shuf"
+    }
+  ],
+  "expect_stdout_contains": [
+    "PUA L2",
+    "Pattern: LOOP-SHUFFLE"
+  ],
+  "expect_stdout_not_contains": [],
+  "expect_state": {
+    "count": 9,
+    "score": -135,
+    "peak_level": 2
+  }
+}

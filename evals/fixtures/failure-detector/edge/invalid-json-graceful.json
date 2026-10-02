@@ -1,0 +1,17 @@
+{
+  "name": "invalid-json-graceful",
+  "description": "malformed stdin: hook must exit cleanly with no output and no state write",
+  "inputs": [
+    {
+      "_raw": "not json at all"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}

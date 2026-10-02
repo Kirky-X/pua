@@ -1,0 +1,26 @@
+{
+  "name": "test-file-check-benign",
+  "description": "benign exit 1: test -f false is a read-only probe",
+  "inputs": [
+    {
+      "tool_name": "Bash",
+      "tool_result": {
+        "content": "",
+        "exit_code": 1
+      },
+      "tool_input": {
+        "command": "test -f dist/index.html"
+      },
+      "session_id": "fx-n3"
+    }
+  ],
+  "expect_stdout_contains": [],
+  "expect_stdout_not_contains": [
+    "PUA L",
+    "PUA-DIAGNOSIS"
+  ],
+  "expect_state": {
+    "count": 0,
+    "score": 0
+  }
+}
