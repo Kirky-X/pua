@@ -12,12 +12,13 @@
 
 - **触发门控（Step 0）**：仅当用户表达挫败、重复失败、质量投诉、被动行为或命中触发词时激活；平静首请求不触发，场景黑名单见 `references/execution-protocol.md`。46 个正则触发用例实测 46/46 通过
 - **15 种大厂味道**：阿里 / 字节 / 华为 / 腾讯 / 百度 / 拼多多 / 美团 / 京东 / 小米 / Netflix / Musk / Jobs / Amazon / Microsoft / 钉内钉外，每种绑定专属方法论；接任务时按任务类型自动路由（Debug→华为 RCA、新功能→Musk Algorithm、代码审查→Jobs 减法等），用户 config 手动设置优先
-- **L0-L4 压力升级**：失败 1-5+ 次逐级升级（信任→失望→灵魂拷问→绩效审视→毕业警告），L2 强制搜索+读源码+列 3 假设，L4 强制切换味道；失败模式分析区分 SPINNING / EXPLORING / MIXED
+- **评分制压力升级（v0.1.7）**：真实失败扣分（同签名重复渐进加权 ×1/×2.5/×5）、验证成功回血、级别阈值 L1≤-30 / L2≤-100 / L3≤-200 / L4≤-350；良性只读探测（grep/diff/test 等 exit 1）与环境错误不产生压力分，探测空转走 IDLE 提示；压力状态按会话隔离（`~/.pua/sessions/<sid>.json`），空转签名记入跨会话 loop 记忆（30 天 TTL），违抗 SPINNING 警告额外加压；失败模式分析区分 SPINNING / EXPLORING / MIXED / LOOP-SHUFFLE
 - **三条红线**：闭环意识（说完成必须贴验证输出）、事实驱动（归因前先验证）、穷尽一切（5 步方法论走完才许说不行）
-- **pua-loop 门控循环**：`verify_command` 由用户启动时设定、嵌入状态文件、agent 不可修改（Oracle 隔离）；默认 10 轮上限，`--max-iterations` 可覆盖
-- **11 个子 skill + 22 个命令**：`/pua:pro`（自进化）、`/pua:p7` / `p9` / `p10`（骨干 / Tech Lead / CTO）、`/pua:yes`（夸夸模式）、`/pua:mama`（妈妈唠叨）、`/pua:ding`（钉味）、`/pua:pua-loop`（自动迭代）、`/pua:pua-en` / `pua-ja`（英 / 日版）；命令如 `/pua:flavor`、`/pua:again`、`/pua:done-check`、`/pua:evidence`、`/pua:kpi`
+- **确定性门控兜底（v0.1.7）**：`churn-gate` 按变更规模（净 ≥400 行或翻动 ≥800 行）强制触发 commit 前三维审查；`test-first` 以 red-green 状态机抓「源码改动未见测试」与「空洞测试」（没见红就过的测试）
+- **pua-loop 门控循环**：`verify_command` 由用户启动时设定、嵌入状态文件；v0.1.7 起 loop/压力状态文件纳入 integrity-guard **硬 deny + 审计日志**（Oracle 隔离从宣称做成机制，agent 自改即拒），verify 改为后台运行、下次 Stop 结算（异步 FAIL 阻塞下一次 Stop）；无 verify 时提供确定性证据赎回通道（命令/验证/产物三路证据）与 `Status: partial` 合法收尾
+- **11 个子 skill + 23 个命令**：`/pua:pro`（自进化）、`/pua:p7` / `p9` / `p10`（骨干 / Tech Lead / CTO）、`/pua:yes`（夸夸模式）、`/pua:mama`（妈妈唠叨）、`/pua:ding`（钉味）、`/pua:pua-loop`（自动迭代）、`/pua:pua-en` / `pua-ja`（英 / 日版）；命令如 `/pua:flavor`、`/pua:again`、`/pua:done-check`、`/pua:diagnose`（乱触发/乱施压自诊断）、`/pua:evidence`、`/pua:kpi`
 - **安全与隐私（2026-09 修复后行为）**：遥测默认关闭，需显式 `PUA_TELEMETRY=1` 或 config `"telemetry": true` 才上报（`offline` 模式下一律不上报）；远端返回内容一律视为不可信展示数据，须完整展示并获用户逐条确认后才可作为动作，无「静默执行」路径
-- **Hooks 体系**：11 个 hook 脚本（frustration-trigger / failure-detector / heartbeat / pua-loop-hook / session-restore / integrity-guard 等），失败计数跨 context compaction 持久化
+- **Hooks 体系（v0.1.7 共 14 个脚本）**：frustration-trigger / failure-detector（评分制）/ churn-gate / test-first / state-snapshot（PreCompact/PostCompact 确定性快照，脱敏原子写 `~/.pua/state/CURRENT.md`，不再依赖模型自觉写 journal）/ session-restore（优先注入快照 + hook 降级宣告）/ heartbeat / pua-loop-hook / integrity-guard（治理状态硬 deny + audit.jsonl）等。热路径已做 spawn 收敛优化（get_flavor 单次批量加载）， hook 时延实测见 `evals/bench/perf-hooks.sh`
 
 ## 📦 安装
 
@@ -47,29 +48,35 @@ npx skills add Kirky-X/pua --agent claude-code -y
 
 ## ✅ 测试与验证
 
-2026-09-13 实测（v0.1.5，与 git tag 一致），`evals/` 下 shell 测试套件：
+2026-10-03 实测（v0.1.7），`evals/` 下 shell 测试套件：
 
 | 套件 | 结果 |
 |------|------|
 | `test-trigger-regex.sh`（触发/不触发正则判定） | **46/46 通过** |
-| `test-hook-unit.sh`（hook 单元） | **32/32 通过** |
-| `test-pua-loop-hook.sh`（循环门控） | **3/3 通过** |
-| `test-integrity-guard.sh` / `test-yaml-frontmatter.sh` / `test-windows-python-hooks.sh` | 通过 |
+| `test-hook-unit.sh`（hook 单元，含 v3 评分制 14 项） | **46/46 通过** |
+| `run-fixture.sh`（failure-detector 行为门禁：positive/negative/edge 36 fixtures） | **36/36 通过** |
+| `test-integrity-guard.sh`（治理状态无条件 deny + 审计 + 路径归一化，38 项治理断言） | **61/61 通过** |
+| `test-pua-loop-hook.sh`（异步结算/证据赎回/孤儿归档/spawn 保活） | **17/17 通过** |
+| `test-state-snapshot.sh`（compaction 快照链 + 脱敏强化 + 保留裁剪） | **42/42 通过** |
+| `test-churn-gate.sh` / `test-test-first.sh` | **7/7 / 11/11 通过** |
+| `test-yaml-frontmatter.sh` / `test-windows-python-hooks.sh` | 13/13 / 6/6 通过 |
+| 分类器评测（`score.py`，27 条标注语料） | Macro F1 1.000（小语料点估计，见 `evals/classifier-results.md`） |
+| 热路径微基准（`evals/bench/perf-hooks.sh`） | failure-detector ≈180ms/事件、churn-gate ≈31ms/事件（优化前 430/726ms，见下） |
 | `test-heartbeat.sh` / `test-feedback-auth.sh` / `test-upload-flow.sh` / `test-platform-compat.sh` / `test-release-consistency.sh` / `test-issue-regressions.sh` / `test-agent-governance.sh` / `test-microsoft-flavor.sh` / `test-behavior.sh` | 本仓库不通过——它们依赖上游完整平台产物（plugin.json、Cloudflare 端点、npm 打包）或 claude CLI 实时调用，本 fork 仅含 skill 部分 |
 
-`trigger-prompts/` 收录 38 条应触发 + 36 条不应触发用例（含平静首请求不触发场景），供 `run-trigger-test.sh`（需 claude CLI）做端到端验证。
+`trigger-prompts/` 收录 38 条应触发 + 36 条不应触发用例（含平静首请求不触发场景），供 `run-trigger-test.sh`（需 claude CLI）做端到端验证。`evals/pressure/` 与 `evals/bench/` 为高压基线与三臂消融运行器（默认 dry-run，`PUA_RUN_LIVE=1` 真跑）。
 
 ## 📁 目录结构
 
 ```
 pua/
-├── SKILL.md            # 触发门控 + 味道/路由 + L0-L4 + 三条红线
-├── skill.json          # v0.1.5, MIT
-├── commands/           # 22 个 slash 命令（flavor / pua-loop / done-check / evidence …）
+├── SKILL.md            # 触发门控 + 味道/路由 + 评分制压力升级 + 三条红线
+├── skill.json          # v0.1.7, MIT
+├── commands/           # 23 个 slash 命令（flavor / pua-loop / done-check / diagnose / evidence …）
 ├── skills/             # 11 个子 skill（pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja）
-├── hooks/              # 11 个 hook 脚本 + flavors.json + hooks.json + config-schema.json
+├── hooks/              # 14 个 hook 脚本 + flavors.json + hooks.json + config-schema.json
 ├── references/         # 32 篇协议文档（execution-protocol / methodology-{company}×15 / platform …）
-├── evals/              # 测试套件 + 74 条触发用例
+├── evals/              # 测试套件 + 36 fixture 门禁 + 27 条标注语料 + 高压/消融基准
 └── scripts/setup-pua-loop.sh
 ```
 

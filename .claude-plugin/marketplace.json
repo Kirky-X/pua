@@ -8,8 +8,8 @@
     "plugins": [
         {
             "name": "pua",
-            "description": "PUA productivity coaching — modular skills, 15 workplace/corporate flavors including Ding Inside/Outside, completion-quality checks, retry/change-approach reminders, and feedback tools.",
-            "version": "3.5.0",
+            "description": "v0.1.7: score-based pressure model with per-session state, cross-session loop memory, deterministic state snapshots, Oracle isolation hardening, TDD/churn gates, and eval infrastructure. PUA productivity coaching — modular skills, 15 workplace/corporate flavors including Ding Inside/Outside, completion-quality checks, retry/change-approach reminders, and feedback tools.",
+            "version": "0.1.7",
             "source": "./",
             "author": {
                 "name": "探微安全实验室",
