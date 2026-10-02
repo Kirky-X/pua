@@ -1,0 +1,30 @@
+# Cloudflare Pages project config for https://pua-skill.pages.dev
+# Deploy: `npm run build && npx wrangler pages deploy dist` from landing/.
+# Functions in functions/ are picked up automatically (Pages convention).
+
+name = "pua-skill"
+compatibility_date = "2025-06-01"
+pages_build_output_dir = "dist"
+
+# D1: feedback + uploads + heartbeat storage. Run migrations with:
+#   npx wrangler d1 migrations apply pua-skill --remote
+[[d1_databases]]
+binding = "DB"
+database_name = "pua-skill"
+# Account-specific id: fill in after `npx wrangler d1 create pua-skill`.
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+# R2: sanitized session transcripts.
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "pua-skill-uploads"
+
+[vars]
+# Comma-separated GitHub logins allowed to read /api/heartbeat admin stats.
+# ADMIN_GITHUB_LOGINS = "your-github-login"
+
+# Secrets (never committed) — set once per deployment:
+#   npx wrangler pages secret put SESSION_SECRET
+#   npx wrangler pages secret put GITHUB_CLIENT_ID
+#   npx wrangler pages secret put GITHUB_CLIENT_SECRET

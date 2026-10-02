@@ -1,0 +1,14 @@
+{
+  "name": "pua-skill-landing",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "esbuild src/main.tsx --bundle --format=esm --outfile=dist/app.js --minify && cp index.html contribute.html admin.html styles.css dist/",
+    "deploy": "npm run build && npx wrangler pages deploy dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.6.0"
+  }
+}
