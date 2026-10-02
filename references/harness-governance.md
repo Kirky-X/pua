@@ -116,6 +116,8 @@ final verifier_status
 
 强制规则：Agent 可以更新 `agent_proposed_status`，但最终 `verifier_status` 只能由 verifier/harness 写入。
 
+交付报告层的 `verifier_status: passed/failed/unverified` 与上表 Task Contract 字段的映射：pass→passed、fail→failed、pending→unverified。两套写法语义一致，且共同规则不变：执行 agent 都不得自填 passed——没有外部验证证据时，unverified 是唯一诚实的默认值。
+
 ## Memory 权限模型
 
 | Memory 类型 | 内容 | 权限 |

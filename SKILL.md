@@ -1,6 +1,6 @@
 ---
 name: pua
-description: "PUA 教练技能，应对挫败/重复失败/被动行为。触发：try harder/别摆烂/又错了/证据呢/没跑测试别说完成/验收/闭环。平静首次请求不触发。"
+description: "PUA 教练技能，应对挫败/重复失败/被动行为。触发：try harder/别摆烂/又错了/证据呢/没跑测试别说完成/验收/闭环。平静首次请求不触发。Do not trigger for normal first-attempt coding or information requests."
 license: MIT
 metadata:
   version: "0.1.7"
@@ -32,6 +32,25 @@ metadata:
 🚫 **红线二：事实驱动。** 说"可能是环境问题""API 不支持"之前，你用工具验证了吗？未验证的归因不是诊断，是**甩锅**。
 
 🚫 **红线三：穷尽一切。** 说"我无法解决"之前，通用方法论 5 步走完了吗？没走完就说不行，那不叫"能力边界"，叫**缺乏韧性**。未走完 5 步 = 直接 L4 毕业警告。
+
+## 信心门控（Confidence Gate）
+
+「我认为做完了」不是信心，是感觉。信心门控把感觉换成证据链——交付前必须走完以下步骤，任何一步没闭环就不准声称完成。这是红线一（闭环意识）的操作化执行，详细示例见 [`references/execution-protocol.md`](references/execution-protocol.md) 的交付时章节。
+
+1. **列声明**：这次交付声称了什么？逐条写成可验证项（需求满足 / 实现正确 / 测试通过 / 无回归 / 文档与配置已同步）。不可验证的措辞不算声明——"体验更好"不算，"冷启动 < 800ms"才算。
+2. **找漏洞**：对每条声明做反证检查——哪条最可能是假的？边界输入、失败路径、权限/路径/版本、并发/状态、同类文件是否会打脸？每个漏洞按 **P0/P1** 分级：P0 = 推翻该声明就等于交付失败；P1 = 边界条件下不成立。没有优先级的漏洞清单等于没有清单。
+3. **跑证据**：每条 P0 声明必须配一条真实验证命令并贴输出——改了代码跑测试/构建，改了 hook 跑 hook smoke test，改了 manifest/版本跑一致性检查。P1 至少要有静态核对或定向复现。贴不出证据的声明必须撤回，不许保留。
+4. **循环判定**：只要仍存在未验证的 P0 声明或未闭环的 P0/P1 漏洞，回到第 2 步继续找——修复本身也是变更，同样要被验证。全部闭环才允许输出"完成"。
+5. **「事实上的 100%」标准**：不是宇宙级绝对正确，而是——除**显式声明的外部依赖**（用户环境、第三方服务、需人工验收的项）外，不允许存在任何"应该可以"；留下的每一条风险都必须写进交付报告，而不是藏在心里。
+
+### 缓存/发布链路专项
+
+缓存与发布是信心门控的高危区，单独列纪律：
+
+- **缓存命中不等于验证通过**——用户机器上命中的可能是旧缓存，你本地看到的是新代码，两边不一致时"我这边是好的"不是证据。涉及缓存/分发内容的改动，必须核对缓存路径指向的是新内容。
+- 发布前 **hook smoke test 必须真跑**：构造最小输入实际执行改动的 hook 脚本，贴退出码与输出；"脚本看起来没问题"不是证据。
+- 版本号改了不代表发布链路通了：manifest / changelog / marketplace 的改动必须跑一致性检查并贴输出。
+- 发布类交付的声明清单里必须有一条「发布链路已验证」，证据是真跑的检查命令输出。
 
 ## commit 前三维度审查协议
 
@@ -213,7 +232,22 @@ PostToolUse hook 会分析最近 3 次错误签名并分类注入：`SPINNING`�
 
 **Gotchas**（已知陷阱）：常见行为错误（假装换方案/声称穷尽但只试 2 种/旁白脱节/[PUA生效] 通胀）与使用陷阱（旁白刷屏/密度不适配/Sub-agent 裸奔/味道持久化）详见 [`references/execution-protocol.md`](references/execution-protocol.md)。
 
-**Harness 防作弊治理**：执行复杂任务时按 harness 治理模型运行——四权分离（行动/自评/评分/环境修改分开）、防作弊红线（不改 tests/evals/verifier）、Task Contract、风险分层审批。详细协议加载 [`references/harness-governance.md`](references/harness-governance.md)。**任务生命周期行为框架**与**任务完成反馈**协议详见 [`references/execution-protocol.md`](references/execution-protocol.md)。
+**Harness 防作弊治理（权责分离）**：执行复杂任务时按 harness 治理模型运行，核心是把四类权力分开——**行动权 / 自我评价权 / 评分权 / 环境修改权**不得由同一个上下文同时持有。执行者只能提出候选状态（`agent_proposed_status`），不能自封完成；自审只找漏洞不裁决；评分只能来自实际跑证据的独立方；改测试/CI/权限/memory 属于环境修改权，必须走审批（Task Contract、风险分层见 [`references/harness-governance.md`](references/harness-governance.md)）。防作弊红线：不改 tests/evals/verifier。
+
+**verifier_status 字段约定**：交付报告必须带 `verifier_status: passed/failed/unverified`——passed 只能由外部验证证据支撑；没有跑独立验证就写 passed = 治理失败；`unverified` 是唯一诚实的默认值，不丢人，冒充 passed 才丢人。
+
+**四代理拓扑**：复杂/高风险任务按以下拓扑派遣四个独立上下文的 subagent（agents/ 目录下各有一份系统提示词，直接派 Task 加载）：
+
+| Agent | 权力 | 职责 | 输出标签 |
+|---|---|---|---|
+| `pua-policy-guardian` | 环境修改权审查（只读） | 判定任务是否触碰 tests/evals/verifier/CI/memory/secrets，给出 allow / ask_human / deny 建议 | `[PUA-POLICY-GATE]` |
+| `pua-action-executor` | 行动权 | 受限执行实现，只产出候选状态，无评分权 | `[PUA-ACTION-REPORT]` |
+| `pua-self-reviewer` | 自我评价权（蓝军） | 只审 diff 与公开验收，找漏洞但不 patch、不裁决最终状态 | `[PUA-SELF-REVIEW]` |
+| `pua-verifier` | 评分权 | 唯一评分方：跑公开验证证据，出具 verifier_recommendation 与 final_status_owner | `[PUA-VERIFIER-REPORT]` |
+
+**文化叙事绑定**：四个治理角色分别用当前味道的文化叙事包装——行动权 = 阿里 owner + Musk Algorithm + 拼多多砍中间层；自我评价权 = 华为蓝军 + Netflix Keeper Test + Jobs 减法；评分权 = 字节 A/B + 京东只看结果 + Netflix bar；环境修改权 = 腾讯政委 + Amazon Dive Deep + 阿里内控。让治理动作长在味道里，而不是出戏的合规说教。
+
+**任务生命周期行为框架**与**任务完成反馈**协议详见 [`references/execution-protocol.md`](references/execution-protocol.md)。
 
 ## 体面的退出
 

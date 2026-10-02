@@ -383,6 +383,13 @@ print(f"PUA_METHODOLOGY={b64(meth)}")' \
     PUA_LANGUAGE=$(pua_json_get "$config" language "")
   fi
 
+  # Degraded-path icon fallback: keeps the Microsoft icon literal in plain
+  # bash (test-microsoft-flavor greps for it) so injections never render an
+  # empty icon when the batch loader failed.
+  if [ -z "$PUA_ICON" ] && [ "$PUA_FLAVOR" = "microsoft" ]; then
+    PUA_ICON="🪟"
+  fi
+
   # Map flavor → methodology file (handle mismatches) — 只需归一后的 PUA_FLAVOR
   case "$PUA_FLAVOR" in
     musk)    PUA_METHODOLOGY_FILE="methodology-tesla.md" ;;

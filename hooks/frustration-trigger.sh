@@ -31,6 +31,7 @@ except Exception:
 fi
 
 # ── 触发词分类（安全审计修复：删除褒义/中性词 + 双条件门控）──
+# TRIGGER_RE 家族 = EXPLICIT_RE（显式意图词） + FRUSTRATION_RE（挫败/责问词）。
 # 1) EXPLICIT_RE 显式意图词：用户点名 PUA 或钉内/钉外书名/黑话——这些是用户
 #    主动点名的调用词，几乎不会出现在平静任务请求里，直接注入。
 # 2) FRUSTRATION_RE 挫败/责问词：仅保留明确挫败/责问语境词，且必须配合

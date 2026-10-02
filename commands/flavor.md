@@ -1,5 +1,5 @@
 ---
-description: "PUA 切换味道 — 从 15 种味道中选择，包括阿里/字节/华为/腾讯/Netflix/Musk/Jobs/Microsoft/钉内钉外。"
+description: "PUA 切换味道 — 共 15 种：14 种味道为大厂绩效文化（阿里/字节/华为/腾讯/百度/拼多多/美团/京东/小米/Netflix/Musk/Jobs/Amazon/Microsoft），另加钉内钉外职场纪律味。"
 argument-hint: "[alibaba|bytedance|huawei|tencent|ding|...]"
 ---
 
