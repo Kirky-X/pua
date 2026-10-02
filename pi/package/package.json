@@ -1,0 +1,47 @@
+{
+  "name": "pua-pi",
+  "version": "0.1.7",
+  "description": "PUA productivity coaching for the pi.dev coding agent: opt-in frustration-driven pressure escalation, evidence-first completion gates, 15 corporate-culture flavors, and gated loop mode. Ships a Pi extension (slash commands) plus the pua skill.",
+  "license": "MIT",
+  "author": {
+    "name": "探微安全实验室",
+    "url": "https://github.com/tanweai"
+  },
+  "homepage": "https://openpua.ai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tanweai/pua.git",
+    "directory": "pi/package"
+  },
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pua",
+    "pi",
+    "pi.dev",
+    "coding-agent",
+    "extension",
+    "skill",
+    "productivity",
+    "coaching",
+    "try-harder",
+    "evidence-first",
+    "methodology"
+  ],
+  "files": [
+    "extensions/",
+    "skills/",
+    "README.md"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions/pua/index.ts"
+    ],
+    "skills": [
+      "./skills"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}
