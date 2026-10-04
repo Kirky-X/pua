@@ -80,13 +80,8 @@ license: MIT
 | `/pua:p7`       | `skills/p7/SKILL.md`       | P7 骨干方案驱动执行（方案→影响分析→编码→三问自审）             |
 | `/pua:p9`       | `skills/p9/SKILL.md`       | P9 Tech Lead：写 Prompt 管 P8 团队，验收闭环                   |
 | `/pua:p10`      | `skills/p10/SKILL.md`      | P10 CTO：定战略方向，管 P9                                     |
-| `/pua:yes`      | `skills/yes/SKILL.md`      | SB Leader 夸夸鼓励模式（ENFP，70% 鼓励 + 20% 正经 + 10% 戏谑） |
-| `/pua:mama`     | `skills/mama/SKILL.md`     | 妈妈唠叨模式（与 yes 互斥）                                    |
-| `/pua:shot`     | `skills/shot/SKILL.md`     | 紧凑 all-in-one 注入包 — **仅 sub-agent 注入，不响应自然语言** |
 | `/pua:ding`     | `skills/ding/SKILL.md`     | 📌 钉内/钉外味（无招 / 老板体感 / 证据链 / 周报去幻觉）        |
 | `/pua:pua-loop` | `skills/pua-loop/SKILL.md` | 自动迭代循环（禁用 AskUserQuestion；`<loop-abort>` 终止）      |
-| `/pua:pua-en`   | `skills/pua-en/SKILL.md`   | English PIP 模式 — **仅当用户用英文书写时**                    |
-| `/pua:pua-ja`   | `skills/pua-ja/SKILL.md`   | 日本語 詰め 模式 — **仅当用户用日文书写时**                    |
 
 ## 加载本 skill 时禁止
 

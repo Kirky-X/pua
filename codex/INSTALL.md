@@ -10,9 +10,8 @@ PUA 在 Codex（OpenAI Codex CLI / 国内镜像版）上以 **skill 包**形态�
 # Codex 专用治理版（推荐，含 Codex 无 hooks 的降级协议）
 npx skills add Kirky-X/pua --skill pua-codex -a codex -y
 
-# 中文主协议 + 英文 PIP 版（按需追加）
+# 中文主协议
 npx skills add Kirky-X/pua --skill pua -a codex -y
-npx skills add Kirky-X/pua --skill pua-en -a codex -y
 
 # 斜杠别名包（pua-on / pua-off / pua-p7 / pua-p9 / pua-p10 / pua-pro / pua-loop）
 npx skills add Kirky-X/pua --skill pua-on -a codex -y
@@ -28,7 +27,7 @@ npx skills add Kirky-X/pua --skill pua-on -a codex -y
 git clone https://github.com/Kirky-X/pua.git
 # 全局（对所有项目生效）
 mkdir -p ~/.codex/skills
-cp -r pua/.codex/skills/pua pua/.codex/skills/pua-en pua/.codex/skills/pua-codex ~/.codex/skills/
+cp -r pua/.codex/skills/pua pua/.codex/skills/pua-codex ~/.codex/skills/
 cp -r pua/codex/pua-on pua/codex/pua-off pua/codex/pua-p7 pua/codex/pua-p9 pua/codex/pua-p10 pua/codex/pua-pro pua/codex/pua-loop ~/.codex/skills/
 # 国内镜像版目录
 mkdir -p ~/.codex-cn/skills

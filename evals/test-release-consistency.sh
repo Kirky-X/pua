@@ -121,7 +121,6 @@ required_paths = [
     'codex/DIFF.md',
     'codex/pua.md',
     '.codex/skills/pua/SKILL.md',
-    '.codex/skills/pua-en/SKILL.md',
     '.codex/skills/pua-codex/SKILL.md',
     'docs/FAQ.md',
     'landing/migrations/0003_feedback_rate_limits.sql',

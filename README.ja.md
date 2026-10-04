@@ -40,7 +40,7 @@ bash scripts/sync-skills.sh pua
 # 方法 2：ZCode スキルディレクトリへ手動コピー
 cp -r /path/to/pua ~/.zcode/skills/pua
 
-# 方法 3：GitHub からリモートインストール。英語版 PIP Edition は --skill pua-en
+# 方法 3：GitHub からリモートインストール
 npx skills add Kirky-X/pua --agent claude-code -y
 ```
 
@@ -81,8 +81,8 @@ npx skills add Kirky-X/pua --agent claude-code -y
 pua/
 ├── SKILL.md            # トリガーゲート + フレーバー/ルーティング + スコア制プレッシャー + 3 本のレッドライン
 ├── skill.json          # v0.1.7, MIT
-├── commands/           # 23 個の slash コマンド（flavor / pua-loop / done-check / diagnose / evidence …）
-├── skills/             # 12 個のサブ skill（pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja + pua 薄殻ルーター）
+├── commands/           # 21 個の slash コマンド（flavor / pua-loop / done-check / diagnose / evidence …）
+├── skills/             # 7 個のサブ skill（pro / p7 / p9 / p10 / ding / pua-loop + pua 薄殻ルーター）
 ├── hooks/              # 14 個の hook スクリプト + flavors.json + hooks.json + config-schema.json
 ├── references/         # 32 本のプロトコル文書（execution-protocol / methodology-{company}×15 / platform …）
 ├── evals/              # テストスイート + 36 fixture ゲート + 27 件のラベル付きコーパス + 高圧/アブレーションベンチ

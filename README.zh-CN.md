@@ -40,7 +40,7 @@ bash scripts/sync-skills.sh pua
 # 方式二：手动复制到 ZCode 技能目录
 cp -r /path/to/pua ~/.zcode/skills/pua
 
-# 方式三：远程安装（GitHub 仓库）；英文版 PIP Edition 选 --skill pua-en
+# 方式三：远程安装（GitHub 仓库）
 npx skills add Kirky-X/pua --agent claude-code -y
 ```
 
@@ -81,8 +81,8 @@ npx skills add Kirky-X/pua --agent claude-code -y
 pua/
 ├── SKILL.md            # 触发门控 + 味道/路由 + 评分制压力升级 + 三条红线
 ├── skill.json          # v0.1.7, MIT
-├── commands/           # 23 个 slash 命令（flavor / pua-loop / done-check / diagnose / evidence …）
-├── skills/             # 12 个子 skill（pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja + pua 薄壳路由入口）
+├── commands/           # 21 个 slash 命令（flavor / pua-loop / done-check / diagnose / evidence …）
+├── skills/             # 7 个子 skill（pro / p7 / p9 / p10 / ding / pua-loop + pua 薄壳路由入口）
 ├── hooks/              # 14 个 hook 脚本 + flavors.json + hooks.json + config-schema.json
 ├── references/         # 32 篇协议文档（execution-protocol / methodology-{company}×15 / platform …）
 ├── evals/              # 测试套件 + 36 fixture 门禁 + 27 条标注语料 + 高压/消融基准

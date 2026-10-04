@@ -273,4 +273,4 @@ PostToolUse hook 会分析最近 3 次错误签名并分类注入：`SPINNING`�
 
 **段位协议**：`p7-protocol.md`（P7 骨干）/ `p9-protocol.md`（P9 Tech Lead）/ `p10-protocol.md`（P10 CTO）/ `agent-team.md`（多 agent 协作）/ `survey.md`（用户调研问卷）/ `evolution-protocol.md`（自进化协议）/ `teardown-protocol.md`（Agent 生命周期回收）。
 
-**子 skill 目录**：`skills/{pua,pro,p7,p9,p10,yes,mama,shot,ding,pua-loop,pua-en,pua-ja}/SKILL.md`（`pua` 为薄壳路由入口，共 12 个）。**搭配使用**：`/pua:pro`（自进化+指令系统）/ `/pua:p9`（Tech Lead）/ `/pua:p7`（骨干）/ `/pua:p10`（CTO）；方法论层 `superpowers:systematic-debugging` + 防虚假完成 `superpowers:verification-before-completion`。
+**子 skill 目录**：`skills/{pua,pro,p7,p9,p10,ding,pua-loop}/SKILL.md`（`pua` 为薄壳路由入口，共 7 个）。**搭配使用**：`/pua:pro`（自进化+指令系统）/ `/pua:p9`（Tech Lead）/ `/pua:p7`（骨干）/ `/pua:p10`（CTO）；方法论层 `superpowers:systematic-debugging` + 防虚假完成 `superpowers:verification-before-completion`。

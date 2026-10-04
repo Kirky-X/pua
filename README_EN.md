@@ -16,7 +16,7 @@ Three capabilities: **PUA rhetoric** so the AI won't give up lightly; **debuggin
 - **Three red lines**: closure awareness (claims of done require pasted verification output), fact-driven (verify before attributing), exhaust everything (finish the 5-step methodology before declaring "can't").
 - **Deterministic gate backstop (v0.1.7)**: `churn-gate` forces the pre-commit 3-dimension review once changes scale (net ≥400 lines or gross churn ≥800); `test-first` runs a red-green state machine that catches "source edits without tests" and "vacuous tests" (a test that never saw red).
 - **pua-loop gated iteration**: `verify_command` is set by the user at launch and embedded in the state file; since v0.1.7 loop/pressure state files are covered by integrity-guard **hard deny + audit log** (Oracle isolation as a mechanism, not a claim — agent self-modification is rejected), and verify runs in the background with settlement at the NEXT Stop (an async FAIL blocks that next Stop); without `--verify` a deterministic evidence-redemption channel (command/verification/artifact) and the `Status: partial` honest-close shape are available.
-- **12 sub-skills + 23 commands**: `/pua:pro` (self-evolution), `/pua:p7` / `p9` / `p10` (backbone / Tech Lead / CTO), `/pua:yes` (praise mode), `/pua:mama` (mom-nagging), `/pua:shot` (compact injection pack), `/pua:ding` (Ding flavor), `/pua:pua-loop` (auto-iteration), `/pua:pua-en` / `pua-ja` (EN / JA editions), `/pua:pua` (thin router shell); commands like `/pua:flavor`, `/pua:again`, `/pua:done-check`, `/pua:diagnose` (self-diagnosis for misfires/over-pressure), `/pua:evidence`, `/pua:kpi`.
+- **7 sub-skills + 21 commands**: `/pua:pro` (self-evolution), `/pua:p7` / `p9` / `p10` (backbone / Tech Lead / CTO), `/pua:ding` (Ding flavor), `/pua:pua-loop` (auto-iteration), `/pua:pua` (thin router shell); commands like `/pua:flavor`, `/pua:again`, `/pua:done-check`, `/pua:diagnose` (self-diagnosis for misfires/over-pressure), `/pua:evidence`, `/pua:kpi`.
 - **Safety & privacy (post-2026-09 fixes)**: telemetry is off by default and requires explicit `PUA_TELEMETRY=1` or config `"telemetry": true` (the key is read by `hooks/heartbeat.sh` but not yet registered in `hooks/config-schema.json` — the schema declares `additionalProperties: false`, so the env var is the recommended switch; never reported in `offline` mode); remote responses are treated as untrusted display data — they must be shown in full and explicitly confirmed by the user item by item before becoming actions; there is no "silent execution" path.
 - **Hook system (14 scripts as of v0.1.7)**: frustration-trigger / failure-detector (score-based) / churn-gate / test-first / state-snapshot (PreCompact/PostCompact deterministic snapshot — redacted atomic write to `~/.pua/state/CURRENT.md`, no longer relying on the model voluntarily writing a journal) / session-restore (injects the snapshot first + announces hook degradation) / heartbeat / pua-loop-hook / integrity-guard (governance-state hard deny + audit.jsonl), etc. Hot paths are spawn-consolidated (get_flavor single batch load); measured latencies live in `evals/bench/perf-hooks.sh`
 
@@ -29,7 +29,7 @@ bash scripts/sync-skills.sh pua
 # Option 2: manual copy into the ZCode skills directory
 cp -r /path/to/pua ~/.zcode/skills/pua
 
-# Option 3: remote install from GitHub; pick --skill pua-en for the English PIP Edition
+# Option 3: remote install from GitHub
 npx skills add Kirky-X/pua --agent claude-code -y
 ```
 
@@ -77,8 +77,8 @@ Full run on 2026-10-03 (v0.1.7): **18 suites + the fixture gate + the classifier
 pua/
 ├── SKILL.md            # Trigger gating + flavors/routing + score-based pressure + three red lines
 ├── skill.json          # v0.1.7, MIT
-├── commands/           # 23 slash commands (flavor / pua-loop / done-check / diagnose / evidence …)
-├── skills/             # 12 sub-skills (pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja + the pua thin router shell)
+├── commands/           # 21 slash commands (flavor / pua-loop / done-check / diagnose / evidence …)
+├── skills/             # 7 sub-skills (pro / p7 / p9 / p10 / ding / pua-loop + the pua thin router shell)
 ├── hooks/              # 14 hook scripts + flavors.json + hooks.json + config-schema.json
 ├── references/         # 32 protocol docs (execution-protocol / methodology-{company}×15 / platform …)
 ├── evals/              # Test suites + 36-fixture gate + 27-entry labeled corpus + pressure/ablation benchmarks

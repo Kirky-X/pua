@@ -20,7 +20,6 @@ errors = []
 # Codex must be a real SKILL.md pack, not only pasteable rules.
 for rel, expected_name in [
     ('.codex/skills/pua/SKILL.md', 'pua'),
-    ('.codex/skills/pua-en/SKILL.md', 'pua-en'),
     ('.codex/skills/pua-codex/SKILL.md', 'pua-codex'),
 ]:
     path = root / rel

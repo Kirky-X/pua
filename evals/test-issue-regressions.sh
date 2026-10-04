@@ -62,7 +62,6 @@ assert_file codex/INSTALL.md "Codex install guide exists"
 assert_file codex/DIFF.md "Codex/Claude Code difference doc exists"
 assert_file codex/pua.md "Codex Chinese prompt exists"
 assert_file .codex/skills/pua/SKILL.md "Codex SKILL.md pack exists"
-assert_file .codex/skills/pua-en/SKILL.md "Codex English SKILL.md pack exists"
 assert_file .codex/skills/pua-codex/SKILL.md "Codex npx skills optimized pack exists"
 
 # #84/#77/#157/#96 static gates.

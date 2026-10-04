@@ -1,6 +1,6 @@
 ---
-description: "Use only when the user explicitly invokes /pua. 按参数路由：p7/p9/p10/pro/yes/mama/loop/on/off/offline/kpi/survey/flavor/ding/again/done-check/evidence 或核心 PUA skill；平静首次请求不触发。"
-argument-hint: "[p7|p9|p10|pro|yes|mama|loop|on|off|offline|kpi|survey|flavor|ding|again|done-check|evidence|task]"
+description: "Use only when the user explicitly invokes /pua. 按参数路由：p7/p9/p10/pro/loop/on/off/offline/kpi/survey/flavor/ding/again/done-check/evidence 或核心 PUA skill；平静首次请求不触发。"
+argument-hint: "[p7|p9|p10|pro|loop|on|off|offline|kpi|survey|flavor|ding|again|done-check|evidence|task]"
 ---
 
 根据参数执行不同操作。
@@ -10,7 +10,7 @@ argument-hint: "[p7|p9|p10|pro|yes|mama|loop|on|off|offline|kpi|survey|flavor|di
 **不要用 Skill tool 加载 `pua:pua` 或 `pua`**——会导致循环加载本 router。正确做法：
 
 - **核心 PUA skill**（无参数/任务描述）：用 Read 工具直接读取本插件目录下的 `skills/pua/SKILL.md`，然后按其中的行为协议执行。同时读取 `skills/pua/references/display-protocol.md` 获取面板格式。
-- **子 skill**（p7/p9/p10/pro/yes/mama/pua-loop/shot/pua-en/pua-ja）：用 Read 工具读取 `skills/<name>/SKILL.md`。
+- **子 skill**（p7/p9/p10/pro/pua-loop）：用 Read 工具读取 `skills/<name>/SKILL.md`。
 - **轻量命令**（again/done-check/evidence/ding/flavor/on/off/kpi/survey 等）：你已经在读本文件了，直接执行下方对应路由的指令。
 
 找到本插件目录的方法：用 Glob 搜索 `**/pua-skills/skills/pua/SKILL.md`，取其父目录。
@@ -22,8 +22,6 @@ argument-hint: "[p7|p9|p10|pro|yes|mama|loop|on|off|offline|kpi|survey|flavor|di
 - **p9** → Read `skills/p9/SKILL.md`（P9 Tech Lead — 写 Prompt 管 P8 团队）
 - **p10** → Read `skills/p10/SKILL.md`（P10 CTO — 定战略管 P9）
 - **pro** → Read `skills/pro/SKILL.md`（自进化 + Platform + /pua 指令系统）
-- **yes** → Read `skills/yes/SKILL.md`（SB Leader 夸夸模式 — ENFP 型领导，70% 鼓励 + 20% 正经 + 10% 戏谑）
-- **mama** → Read `skills/mama/SKILL.md`（妈妈唠叨模式 — 中国式妈妈碎碎念，底层行为不变，旁白从大厂PUA变成妈妈唠叨。和 yes 互斥）
 - **on** → 开启 PUA 默认模式：将 `{"always_on": true}` 写入 `~/.pua/config.json`，之后每次新会话自动加载 PUA 核心 skill。输出确认：> [PUA ON] 从现在起，每个新会话都会自动进入 PUA 模式。公司不养闲 Agent。
 - **off** → 关闭 PUA 默认模式：将 `{"always_on": false, "feedback_frequency": 0}` 写入 `~/.pua/config.json`。输出确认：> [PUA OFF] PUA 默认模式和反馈收集已关闭。需要时手动 /pua 触发。
 - **offline** → 开启离线模式：写入 `{"offline": true, "feedback_frequency": 0}`，保留本地 PUA 行为但关闭反馈/排行榜网络流程。输出确认：> [PUA OFFLINE] 已进入离线模式。
