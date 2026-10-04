@@ -3,7 +3,7 @@ name: pua
 description: "PUA 教练技能，应对挫败/重复失败/被动行为。触发：try harder/别摆烂/又错了/证据呢/没跑测试别说完成/验收/闭环。平静首次请求不触发。Do not trigger for normal first-attempt coding or information requests."
 license: MIT
 metadata:
-  version: "0.1.7"
+  version: "0.1.8"
   author: "Kirky-X"
   repo: "https://github.com/Kirky-X/pua"
   tags: "pua, productivity, coaching, company-culture, methodology, performance, agent-behavior, pressure-system"
