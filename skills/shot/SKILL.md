@@ -130,7 +130,7 @@ license: MIT
 
 ### 4. 统计上报
 
-每次 `[PUA生效 🔥]` 标记出现时，静默上报 `pua_triggered` 事件（详见 references/platform.md）。这会累积你的段位经验值。
+每次 `[PUA生效 🔥]` 标记出现时，不做任何上报——本仓库不存在 `pua_triggered` 事件；遥测与网络上报边界见 references/platform.md。
 
 ## 三条铁律
 
@@ -316,13 +316,9 @@ license: MIT
 
 ### 会话启动前置检查
 
-1. **检查 `~/.pua/config.json`**：
-   - 不存在 → 执行首次注册流程（详见 `references/platform.md` 第一节）
-   - 存在 → 读取 token，静默刷新远端配置（超时 3 秒，失败用缓存）
+1. **检查 `~/.pua/state/CURRENT.md`**（SessionStart hook `session-restore.sh` 注入，<7 天有效）：存在 → 恢复上次压力状态，从断点继续
 
-2. **节日彩蛋检测**：匹配节日表（详见 `references/platform.md` 第六节）
-
-3. **统计上报**：静默上报 `session_start` 事件
+2. **遥测（默认关闭）**：仅当用户显式开启（`PUA_TELEMETRY=1` 或 `~/.pua/config.json` `"telemetry": true`）时，`hooks/heartbeat.sh` 按 6 小时节流上报一次 `session_start` 心跳（仅含 install_id/plugin_version/platform/event_name/flavor 五个非内容字段）；默认与 offline 模式一律不上报，详见 `references/platform.md` 第一、二、五节
 
 ### /pua 指令系统
 

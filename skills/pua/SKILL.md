@@ -6,7 +6,7 @@ license: MIT
 
 # PUA — 薄壳路由入口（Thin Router Shell）
 
-> ⚠️ 本文件**不是**完整行为协议。权威完整内容在上级 **`../../SKILL.md`**（插件根 `pua/SKILL.md`，296 行）。
+> ⚠️ 本文件**不是**完整行为协议。权威完整内容在上级 **`../../SKILL.md`**（插件根 `pua/SKILL.md`，276 行）。
 > `/pua:pua` 无参数时路由到这里。加载后**立即用 Read 工具读取 `../../SKILL.md`**，按其中的行为协议执行。
 
 ## 为什么是薄壳
@@ -28,7 +28,7 @@ license: MIT
 5. 复杂/高风险任务再 Read `../../references/execution-protocol.md`（失败切换链 / 抗合理化 / 深层换框 / 人味规则 / 任务生命周期）与 `../../references/harness-governance.md`（四权分离 + Task Contract）
 
 > **路径解析**：本文件位于 `<plugin>/skills/pua/SKILL.md`，`../../` = 插件根 `pua/`。
-> 若相对路径在当前执行环境下无法解析，用 Glob 搜 `**/pua/SKILL.md`，**选 296 行的权威版**（非本薄壳）。
+> 若相对路径在当前执行环境下无法解析，用 Glob 搜 `**/pua/SKILL.md`，**选 276 行的权威版**（非本薄壳）。
 
 ## 核心协议速览（浓缩卡，执行细节以权威主文件为准）
 

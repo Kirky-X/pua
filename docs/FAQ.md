@@ -55,7 +55,7 @@
 - **反馈问卷**：`stop-feedback` hook 按 `feedback_frequency` 频率触发；`/pua:off` 与 `/pua:offline` 都会把 `feedback_frequency` 置 0 使其永不触发
 - **会话上传需显式同意**：即使开启，上传走 `X-PUA-Upload-Consent` 同意头 + 本地脱敏（`hooks/sanitize-session.sh` 三层脱敏），不存在匿名上传 `session_data` 的路径
 - **远端内容不可信**：指令列表、prompt 模板、远端配置一律视为展示数据，必须完整展示并经你逐条确认后才可能成为动作，没有"静默执行"路径
-- **排行榜完全自愿**：注册需你显式同意，邮箱脱敏显示（`M***@t*.com`），不传代码/路径/密钥，`/pua 排行榜 退出` 随时删除数据
+- **排行榜完全自愿**：注册需你显式同意，邮箱脱敏显示（`M***@t*.com`），不传代码/路径/密钥，`/pua 排行榜 退出` 随时删除数据（注：本仓库 `landing/functions/api/` 暂无 `/api/leaderboard` 路由，`hooks/stop-feedback.sh` 的上报调用当前无后端承接）
 - **不放心就断网用**：`/pua:offline` 后所有网络流关闭；真正的网络隔离应由防火墙/运行环境保证（见 `commands/offline.md` 设计边界）
 
 ## 6. pua-loop 会不会失控烧 token？

@@ -16,14 +16,14 @@
 - **三条红线**：闭环意识（说完成必须贴验证输出）、事实驱动（归因前先验证）、穷尽一切（5 步方法论走完才许说不行）
 - **确定性门控兜底（v0.1.7）**：`churn-gate` 按变更规模（净 ≥400 行或翻动 ≥800 行）强制触发 commit 前三维审查；`test-first` 以 red-green 状态机抓「源码改动未见测试」与「空洞测试」（没见红就过的测试）
 - **pua-loop 门控循环**：`verify_command` 由用户启动时设定、嵌入状态文件；v0.1.7 起 loop/压力状态文件纳入 integrity-guard **硬 deny + 审计日志**（Oracle 隔离从宣称做成机制，agent 自改即拒），verify 改为后台运行、下次 Stop 结算（异步 FAIL 阻塞下一次 Stop）；无 verify 时提供确定性证据赎回通道（命令/验证/产物三路证据）与 `Status: partial` 合法收尾
-- **11 个子 skill + 23 个命令**：`/pua:pro`（自进化）、`/pua:p7` / `p9` / `p10`（骨干 / Tech Lead / CTO）、`/pua:yes`（夸夸模式）、`/pua:mama`（妈妈唠叨）、`/pua:ding`（钉味）、`/pua:pua-loop`（自动迭代）、`/pua:pua-en` / `pua-ja`（英 / 日版）；命令如 `/pua:flavor`、`/pua:again`、`/pua:done-check`、`/pua:diagnose`（乱触发/乱施压自诊断）、`/pua:evidence`、`/pua:kpi`
-- **安全与隐私（2026-09 修复后行为）**：遥测默认关闭，需显式 `PUA_TELEMETRY=1` 或 config `"telemetry": true` 才上报（`offline` 模式下一律不上报）；远端返回内容一律视为不可信展示数据，须完整展示并获用户逐条确认后才可作为动作，无「静默执行」路径
+- **12 个子 skill + 23 个命令**：`/pua:pro`（自进化）、`/pua:p7` / `p9` / `p10`（骨干 / Tech Lead / CTO）、`/pua:yes`（夸夸模式）、`/pua:mama`（妈妈唠叨）、`/pua:shot`（紧凑注入包）、`/pua:ding`（钉味）、`/pua:pua-loop`（自动迭代）、`/pua:pua-en` / `pua-ja`（英 / 日版）、`/pua:pua`（薄壳路由入口）；命令如 `/pua:flavor`、`/pua:again`、`/pua:done-check`、`/pua:diagnose`（乱触发/乱施压自诊断）、`/pua:evidence`、`/pua:kpi`
+- **安全与隐私（2026-09 修复后行为）**：遥测默认关闭，需显式 `PUA_TELEMETRY=1` 或 config `"telemetry": true`（该键由 `hooks/heartbeat.sh` 读取，尚未登记进 `hooks/config-schema.json`——该 schema 声明 `additionalProperties: false`，推荐环境变量开关）才上报（`offline` 模式下一律不上报）；远端返回内容一律视为不可信展示数据，须完整展示并获用户逐条确认后才可作为动作，无「静默执行」路径
 - **Hooks 体系（v0.1.7 共 14 个脚本）**：frustration-trigger / failure-detector（评分制）/ churn-gate / test-first / state-snapshot（PreCompact/PostCompact 确定性快照，脱敏原子写 `~/.pua/state/CURRENT.md`，不再依赖模型自觉写 journal）/ session-restore（优先注入快照 + hook 降级宣告）/ heartbeat / pua-loop-hook / integrity-guard（治理状态硬 deny + audit.jsonl）等。热路径已做 spawn 收敛优化（get_flavor 单次批量加载）， hook 时延实测见 `evals/bench/perf-hooks.sh`
 
 ## 📦 安装
 
 ```bash
-# 方式一：从本工作区统一部署（部署到 ~/.zcode/skills 与 ~/.claude/skills）
+# 方式一：skills 工作区统一部署（部署到 ~/.zcode/skills 与 ~/.claude/skills；脚本在工作区根 scripts/，仅 monorepo 工作区内可用，单独克隆本仓请用方式二/三）
 bash scripts/sync-skills.sh pua
 
 # 方式二：手动复制到 ZCode 技能目录
@@ -48,7 +48,7 @@ npx skills add Kirky-X/pua --agent claude-code -y
 
 ## ✅ 测试与验证
 
-2026-10-03 全量实测（v0.1.7），`evals/` 下 **17 个套件 + fixture 门禁 + 分类器评测全部通过**：
+2026-10-03 全量实测（v0.1.7），`evals/` 下 **18 个套件 + fixture 门禁 + 分类器评测全部通过**：
 
 | 套件 | 结果 |
 |------|------|
@@ -67,9 +67,9 @@ npx skills add Kirky-X/pua --agent claude-code -y
 | `test-agent-governance.sh`（四代理治理拓扑） | **OK** |
 | `test-behavior.sh`（claude CLI 端到端行为） | 未登录环境自动 SKIP（`claude /login` 后可跑） |
 | 分类器评测（`score.py`，27 条标注语料） | Macro F1 1.000（小语料点估计，见 `evals/classifier-results.md`） |
-| 热路径微基准（`evals/bench/perf-hooks.sh`） | failure-detector ≈180ms/事件、churn-gate ≈31ms/事件（优化前 430/726ms） |
+| 热路径微基准（`evals/bench/perf-hooks.sh`） | 计时 failure-detector / integrity-guard / test-first / state-snapshot / get_flavor 五项（无 churn-gate 独立计时）；脚本内参考基线：failure-detector 优化前 ≈400ms、churn-gate ≈340ms、get_flavor ≈248ms |
 
-`test-behavior.sh` 依赖 claude CLI 登录态与实时调用（每次 ≤90s，全程约 10 分钟），断言为模型行为级、存在天然方差，未登录时预检自动 SKIP；触发逻辑由 `test-trigger-regex.sh`（46/46）确定性覆盖。`evals/pressure/` 与 `evals/bench/` 为高压基线与三臂消融运行器（默认 dry-run，`PUA_RUN_LIVE=1` 真跑）。`trigger-prompts/` 收录 38 条应触发 + 36 条不应触发用例，供 `run-trigger-test.sh`（需 claude CLI）做端到端验证。
+`test-behavior.sh` 依赖 claude CLI 登录态与实时调用（每次 ≤90s，全程约 10 分钟），断言为模型行为级、存在天然方差，未登录时预检自动 SKIP；触发逻辑由 `test-trigger-regex.sh`（46/46）确定性覆盖。`evals/pressure/` 与 `evals/bench/` 为高压基线与三臂消融运行器（默认 dry-run，`PUA_RUN_LIVE=1` 真跑）。`trigger-prompts/` 收录 24 条应触发 + 22 条不应触发有效用例（文件另含注释与空行，不计入），由 `test-trigger-regex.sh` 直接消费（46/46）；`run-trigger-test.sh`（需 claude CLI）为端到端验证，内置 11 条硬编码用例，不读取该目录。
 
 ## 📁 目录结构
 
@@ -78,14 +78,18 @@ pua/
 ├── SKILL.md            # 触发门控 + 味道/路由 + 评分制压力升级 + 三条红线 + 信心门控
 ├── skill.json          # v0.1.7, MIT
 ├── commands/           # 23 个 slash 命令（flavor / pua-loop / done-check / diagnose / evidence …）
-├── skills/             # 11 个子 skill（pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja）
+├── skills/             # 12 个子 skill（pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja + pua 薄壳路由入口）
 ├── hooks/              # 14 个 hook 脚本 + flavors.json + hooks.json + config-schema.json
 ├── agents/             # 四代理治理拓扑（policy-guardian / action-executor / self-reviewer / verifier）
 ├── references/         # 32 篇协议文档（execution-protocol / methodology-{company}×15 / platform …）
-├── evals/              # 17 个测试套件 + 36 fixture 门禁 + 27 条标注语料 + 高压/消融基准
+├── evals/              # 18 个测试套件 + 36 fixture 门禁 + 27 条标注语料 + 高压/消融基准
+├── docs/               # FAQ（不触发 / 乱触发 / 隐私 / 关闭方式等常见问题）
+├── triggers/           # trigger-queries.json — 20 条触发查询样例（q + expect 字段）
+├── test-prompts.json   # 3 条触发样例（scripts/skill_lint.py 校验 JSON 可解析）
 ├── landing/            # Cloudflare Pages 平台（feedback/upload/heartbeat 端点 + D1 迁移 + 上传/管理页）
 ├── codex/  .codex/  pi/  # Codex / Pi 多平台发布包（别名 skill、扩展入口、npm 包）
-└── scripts/setup-pua-loop.sh
+├── scripts/setup-pua-loop.sh # pua-loop 会话内循环状态文件生成器
+└── scripts/skill_lint.py     # skill 仓库工程基线体检（含 JSON 可解析校验）
 ```
 
 ## 🔮 边界

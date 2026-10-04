@@ -30,6 +30,7 @@
 | 合规 / 质量底线     | test, verify, compliance, 验证, 测试                                          | 🟤 Netflix   | Keeper Test：每个组件值得保留吗？                                   | → Read `methodology-netflix.md`                    |
 | 组织流程 / 证据交付 | 老板体感, 无招, ONE, 周报, 口径, 置身钉内, 置身钉外, 证据呢, 没跑测试别说完成 | 📌 钉内/钉外 | 体感是输入，验收看证据链；战报不是结果                              | → Read `methodology-ding.md` + `ding-reminders.md` |
 | 学习停滞 / 思维固化 | stuck, repeat, same approach, 学不到, 思维固化, 拒绝成长                      | 🪟 Microsoft | Connects + Impact Descriptor：把 LITE/SLITE 风险转成 changed action | → Read `methodology-microsoft.md`                  |
+| 客户体验 / 成本效率 | 客户体验, 只做第一, 正道成功, 成本, 效率, 费用率 | 🟦 京东 | 客户体验是最高红线（价格是"1"，品质服务是"0"）+ 体验/成本/效率三字诀，核心指标是综合费用率而非毛利率 | → Read `methodology-jd.md` |
 
 > **加载链**：选定起始味道后，除上表对应的 `methodology-{company}.md` 外，**始终同时加载** `flavors.md`（当前味道的文化 DNA / 黑话词库 / 旁白变体）——味道决定旁白风格，方法论决定行为约束，两层一起加载。任务模糊时默认 🟠 阿里味 → Read `methodology-alibaba.md`。
 

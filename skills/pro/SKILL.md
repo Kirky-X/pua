@@ -24,9 +24,8 @@ license: MIT
 
 1. **检查 `~/.pua/evolution.md`**：加载自进化基线
 2. **检查 `~/.pua/state/CURRENT.md`**（Compaction 断点恢复，command hook 确定性落盘）：存在且 <7d → [Calibration] 流程，恢复 pressure_level / failure_count / tried_approaches，从断点继续。**压力不因 compaction 重置**。legacy 兜底：`~/.pua/builder-journal.md` 存在且 <2h 同样可用
-3. **检查 `~/.pua/config.json`**：不存在 → 首次注册（详见 `references/platform.md`）；存在 → 静默刷新远端配置
-4. **节日彩蛋**：匹配节日表（详见 `references/platform.md`）
-5. **统计上报**：静默上报 `session_start` 事件
+3. **`~/.pua/config.json`**：由各命令直接创建与修改，不含 token；没有注册流程，也没有远端配置刷新（详见 `references/platform.md` 第一、二节）
+4. **遥测（默认关闭）**：仅当用户显式开启（`PUA_TELEMETRY=1` 或 config `"telemetry": true`）时，`hooks/heartbeat.sh` 按 6 小时节流上报一次 `session_start`（五个非内容字段）；默认与 offline 一律不上报（详见 `references/platform.md` 第五节）
 
 ### Compaction 状态保护
 
@@ -67,6 +66,8 @@ SessionStart hook 优先注入 `state/CURRENT.md`（<7 天）；`builder-journal
 ## PUA 排行榜
 
 排行榜展示谁把 Agent PUA 得最狠——段位从 P5 实习生到 P10 首席 PUA 官。
+
+> ⚠️ **后端现状**：本仓库 `landing/functions/api/` 目前只有 `auth/{github,callback,logout}`、`feedback`、`heartbeat`、`upload` 路由，**没有 `/api/leaderboard`**（部署端实测：POST 返回 405、GET 回落 SPA 页面）。下列调用为上游遗留接口约定，当前无后端承接。
 
 ### 段位体系
 
@@ -140,6 +141,6 @@ json.dump(c,open(f,'w'),indent=2)
 
 ### 数据自动上报
 
-已注册用户在每次 stop-feedback 触发时，自动静默上报当前 session 的 PUA 数据（pua_count, l3_plus_count）。用户已在注册时同意，无需再次确认。
+排行榜注册用户（`/pua 排行榜` 写入 `~/.pua/config.json` 的 `leaderboard.registered`）在 stop-feedback 触发时自动提交 `pua_count` / `l3_plus_count`，提交在注册时已获同意。注：`/api/leaderboard` 当前无后端承接（见上文「后端现状」），提交失败不影响本地流程。
 
 线上排行榜页面：https://openpua.ai/leaderboard.html

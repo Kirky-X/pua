@@ -2,7 +2,7 @@
 
 范围口径：本套件只覆盖 `scripts/`（即 `setup-pua-loop.sh`）。
 hooks/ 与 evals/ 不在本次范围——hooks 已有独立的 shell 测试套件
-`evals/test-*.sh`（17 个），由各仓自身维护。
+`evals/test-*.sh`（19 个），由各仓自身维护。
 
 ## 未覆盖路径及原因
 

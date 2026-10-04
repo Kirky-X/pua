@@ -34,7 +34,7 @@
 ## 📦 安装
 
 ```bash
-# 方式一：从本工作区统一部署（部署到 ~/.zcode/skills 与 ~/.claude/skills）
+# 方式一：skills 工作区统一部署（部署到 ~/.zcode/skills 与 ~/.claude/skills；脚本在工作区根 scripts/，仅 monorepo 工作区内可用，单独克隆本仓请用方式二/三）
 bash scripts/sync-skills.sh pua
 
 # 方式二：手动复制到 ZCode 技能目录
@@ -68,10 +68,12 @@ npx skills add Kirky-X/pua --agent claude-code -y
 | `test-pua-loop-hook.sh`（异步结算/证据赎回/孤儿归档/spawn 保活） | **17/17 通过** |
 | `test-state-snapshot.sh`（compaction 快照链 + 脱敏强化 + 保留裁剪） | **42/42 通过** |
 | `test-churn-gate.sh` / `test-test-first.sh` | **7/7 / 11/11 通过** |
-| `test-yaml-frontmatter.sh` / `test-windows-python-hooks.sh` | 13/13 / 6/6 通过 |
+| `test-yaml-frontmatter.sh` / `test-windows-python-hooks.sh` | 24/24 / 6/6 通过 |
 | 分类器评测（`score.py`，27 条标注语料） | Macro F1 1.000（小语料点估计，见 `evals/classifier-results.md`） |
-| 热路径微基准（`evals/bench/perf-hooks.sh`） | failure-detector ≈180ms/事件、churn-gate ≈31ms/事件（优化前 430/726ms） |
-| `test-heartbeat.sh` / `test-feedback-auth.sh` / `test-upload-flow.sh` / `test-platform-compat.sh` / `test-release-consistency.sh` / `test-issue-regressions.sh` / `test-agent-governance.sh` / `test-microsoft-flavor.sh` / `test-behavior.sh` | 本仓库不通过——它们依赖上游完整平台产物（plugin.json、Cloudflare 端点、npm 打包）或 claude CLI 实时调用，本 fork 仅含 skill 部分 |
+| 热路径微基准（`evals/bench/perf-hooks.sh`） | 计时 failure-detector / integrity-guard / test-first / state-snapshot / get_flavor 五项（无 churn-gate 独立计时）；脚本内参考基线：failure-detector 优化前 ≈400ms、churn-gate ≈340ms、get_flavor ≈248ms |
+| `test-heartbeat.sh` / `test-feedback-auth.sh` / `test-upload-flow.sh` / `test-platform-compat.sh` | **29/29 / 10/10 / 20/20 / 2/2 通过** |
+| `test-release-consistency.sh` / `test-issue-regressions.sh` / `test-agent-governance.sh` / `test-microsoft-flavor.sh` | OK / **34/34** / OK / **28/28** 通过 |
+| `test-behavior.sh`（claude CLI 端到端行为） | 未登录环境自动 SKIP（EXIT=0，`claude /login` 后可跑） |
 
 ## 📁 目录结构
 
@@ -80,11 +82,12 @@ pua/
 ├── SKILL.md            # 触发门控 + 味道/路由 + 评分制压力升级 + 三条红线
 ├── skill.json          # v0.1.7, MIT
 ├── commands/           # 23 个 slash 命令（flavor / pua-loop / done-check / diagnose / evidence …）
-├── skills/             # 11 个子 skill（pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja）
+├── skills/             # 12 个子 skill（pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja + pua 薄壳路由入口）
 ├── hooks/              # 14 个 hook 脚本 + flavors.json + hooks.json + config-schema.json
 ├── references/         # 32 篇协议文档（execution-protocol / methodology-{company}×15 / platform …）
 ├── evals/              # 测试套件 + 36 fixture 门禁 + 27 条标注语料 + 高压/消融基准
-└── scripts/setup-pua-loop.sh
+├── scripts/setup-pua-loop.sh # pua-loop 会话内循环状态文件生成器
+└── scripts/skill_lint.py     # skill 仓库工程基线体检（含 JSON 可解析校验）
 ```
 
 ## 🔮 边界

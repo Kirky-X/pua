@@ -34,7 +34,7 @@ Microsoft フレーバーは抽象的なスローガンではなく、Microsoft 
 ## 📦 インストール
 
 ```bash
-# 方法 1：このワークスペースから一括デプロイ（~/.zcode/skills と ~/.claude/skills へ）
+# 方法 1：skills モノレポ ワークスペースから一括デプロイ（~/.zcode/skills と ~/.claude/skills へ。スクリプトはワークスペース直下 scripts/ にあり、モノレポ内でのみ使用可。本リポジトリのみ克隆した場合は方法 2/3 を使用）
 bash scripts/sync-skills.sh pua
 
 # 方法 2：ZCode スキルディレクトリへ手動コピー
@@ -68,10 +68,12 @@ npx skills add Kirky-X/pua --agent claude-code -y
 | `test-pua-loop-hook.sh`（非同期精算/証拠償還/孤立アーカイブ/spawn keep-alive） | **17/17 合格** |
 | `test-state-snapshot.sh`（compaction スナップショットチェーン + マスキング強化 + 保持 pruning） | **42/42 合格** |
 | `test-churn-gate.sh` / `test-test-first.sh` | **7/7 / 11/11 合格** |
-| `test-yaml-frontmatter.sh` / `test-windows-python-hooks.sh` | 13/13 / 6/6 合格 |
+| `test-yaml-frontmatter.sh` / `test-windows-python-hooks.sh` | 24/24 / 6/6 合格 |
 | 分類器評価（`score.py`、27 件のラベル付きコーパス） | Macro F1 1.000（小規模コーパスの点推定、`evals/classifier-results.md` 参照） |
-| ホットパスマイクロベンチ（`evals/bench/perf-hooks.sh`） | failure-detector ≈180ms/イベント、churn-gate ≈31ms/イベント（最適化前 430/726ms） |
-| `test-heartbeat.sh` / `test-feedback-auth.sh` / `test-upload-flow.sh` / `test-platform-compat.sh` / `test-release-consistency.sh` / `test-issue-regressions.sh` / `test-agent-governance.sh` / `test-microsoft-flavor.sh` / `test-behavior.sh` | 本リポジトリでは不合格—— upstream の完全なプラットフォーム成果物（plugin.json、Cloudflare エンドポイント、npm パッケージング）または claude CLI のライブ呼び出しに依存するため。本フォークは skill 部分のみ含む |
+| ホットパスマイクロベンチ（`evals/bench/perf-hooks.sh`） | failure-detector / integrity-guard / test-first / state-snapshot / get_flavor の 5 項目を計時（churn-gate の単独計時なし）。スクリプト内参考ベースライン：failure-detector 最適化前 ≈400ms、churn-gate ≈340ms、get_flavor ≈248ms |
+| `test-heartbeat.sh` / `test-feedback-auth.sh` / `test-upload-flow.sh` / `test-platform-compat.sh` | **29/29 / 10/10 / 20/20 / 2/2 合格** |
+| `test-release-consistency.sh` / `test-issue-regressions.sh` / `test-agent-governance.sh` / `test-microsoft-flavor.sh` | OK / **34/34** / OK / **28/28** 合格 |
+| `test-behavior.sh`（claude CLI エンドツーエンド挙動） | 未ログイン環境では自動 SKIP（EXIT=0。`claude /login` 後に実行可） |
 
 ## 📁 ディレクトリ構成
 
@@ -80,11 +82,12 @@ pua/
 ├── SKILL.md            # トリガーゲート + フレーバー/ルーティング + スコア制プレッシャー + 3 本のレッドライン
 ├── skill.json          # v0.1.7, MIT
 ├── commands/           # 23 個の slash コマンド（flavor / pua-loop / done-check / diagnose / evidence …）
-├── skills/             # 11 個のサブ skill（pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja）
+├── skills/             # 12 個のサブ skill（pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja + pua 薄殻ルーター）
 ├── hooks/              # 14 個の hook スクリプト + flavors.json + hooks.json + config-schema.json
 ├── references/         # 32 本のプロトコル文書（execution-protocol / methodology-{company}×15 / platform …）
 ├── evals/              # テストスイート + 36 fixture ゲート + 27 件のラベル付きコーパス + 高圧/アブレーションベンチ
-└── scripts/setup-pua-loop.sh
+├── scripts/setup-pua-loop.sh # pua-loop セッション内ループ用状態ファイル生成
+└── scripts/skill_lint.py     # skill リポジトリ基線検査（JSON パース検証を含む）
 ```
 
 ## 🔮 境界

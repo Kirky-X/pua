@@ -16,14 +16,14 @@ Three capabilities: **PUA rhetoric** so the AI won't give up lightly; **debuggin
 - **Three red lines**: closure awareness (claims of done require pasted verification output), fact-driven (verify before attributing), exhaust everything (finish the 5-step methodology before declaring "can't").
 - **Deterministic gate backstop (v0.1.7)**: `churn-gate` forces the pre-commit 3-dimension review once changes scale (net ≥400 lines or gross churn ≥800); `test-first` runs a red-green state machine that catches "source edits without tests" and "vacuous tests" (a test that never saw red).
 - **pua-loop gated iteration**: `verify_command` is set by the user at launch and embedded in the state file; since v0.1.7 loop/pressure state files are covered by integrity-guard **hard deny + audit log** (Oracle isolation as a mechanism, not a claim — agent self-modification is rejected), and verify runs in the background with settlement at the NEXT Stop (an async FAIL blocks that next Stop); without `--verify` a deterministic evidence-redemption channel (command/verification/artifact) and the `Status: partial` honest-close shape are available.
-- **11 sub-skills + 23 commands**: `/pua:pro` (self-evolution), `/pua:p7` / `p9` / `p10` (backbone / Tech Lead / CTO), `/pua:yes` (praise mode), `/pua:mama` (mom-nagging), `/pua:ding` (Ding flavor), `/pua:pua-loop` (auto-iteration), `/pua:pua-en` / `pua-ja` (EN / JA editions); commands like `/pua:flavor`, `/pua:again`, `/pua:done-check`, `/pua:diagnose` (self-diagnosis for misfires/over-pressure), `/pua:evidence`, `/pua:kpi`.
-- **Safety & privacy (post-2026-09 fixes)**: telemetry is off by default and requires explicit `PUA_TELEMETRY=1` or config `"telemetry": true` (never reported in `offline` mode); remote responses are treated as untrusted display data — they must be shown in full and explicitly confirmed by the user item by item before becoming actions; there is no "silent execution" path.
+- **12 sub-skills + 23 commands**: `/pua:pro` (self-evolution), `/pua:p7` / `p9` / `p10` (backbone / Tech Lead / CTO), `/pua:yes` (praise mode), `/pua:mama` (mom-nagging), `/pua:shot` (compact injection pack), `/pua:ding` (Ding flavor), `/pua:pua-loop` (auto-iteration), `/pua:pua-en` / `pua-ja` (EN / JA editions), `/pua:pua` (thin router shell); commands like `/pua:flavor`, `/pua:again`, `/pua:done-check`, `/pua:diagnose` (self-diagnosis for misfires/over-pressure), `/pua:evidence`, `/pua:kpi`.
+- **Safety & privacy (post-2026-09 fixes)**: telemetry is off by default and requires explicit `PUA_TELEMETRY=1` or config `"telemetry": true` (the key is read by `hooks/heartbeat.sh` but not yet registered in `hooks/config-schema.json` — the schema declares `additionalProperties: false`, so the env var is the recommended switch; never reported in `offline` mode); remote responses are treated as untrusted display data — they must be shown in full and explicitly confirmed by the user item by item before becoming actions; there is no "silent execution" path.
 - **Hook system (14 scripts as of v0.1.7)**: frustration-trigger / failure-detector (score-based) / churn-gate / test-first / state-snapshot (PreCompact/PostCompact deterministic snapshot — redacted atomic write to `~/.pua/state/CURRENT.md`, no longer relying on the model voluntarily writing a journal) / session-restore (injects the snapshot first + announces hook degradation) / heartbeat / pua-loop-hook / integrity-guard (governance-state hard deny + audit.jsonl), etc. Hot paths are spawn-consolidated (get_flavor single batch load); measured latencies live in `evals/bench/perf-hooks.sh`
 
 ## 📦 Installation
 
 ```bash
-# Option 1: deploy from this workspace (to ~/.zcode/skills and ~/.claude/skills)
+# Option 1: deploy from the skills monorepo workspace (to ~/.zcode/skills and ~/.claude/skills; the script lives in the workspace root scripts/ and only works inside the monorepo — if you cloned just this repo, use options 2/3)
 bash scripts/sync-skills.sh pua
 
 # Option 2: manual copy into the ZCode skills directory
@@ -48,7 +48,7 @@ Debug scenarios auto-route to the Huawei flavor (RCA + red team), deployment to 
 
 ## ✅ Tests & Verification
 
-Full run on 2026-10-03 (v0.1.7): **17 suites + the fixture gate + the classifier eval, all passing** under `evals/`:
+Full run on 2026-10-03 (v0.1.7): **18 suites + the fixture gate + the classifier eval, all passing** under `evals/`:
 
 | Suite | Result |
 |-------|--------|
@@ -67,9 +67,9 @@ Full run on 2026-10-03 (v0.1.7): **17 suites + the fixture gate + the classifier
 | `test-agent-governance.sh` (four-agent governance topology) | **OK** |
 | `test-behavior.sh` (end-to-end behavior via the claude CLI) | auto-SKIP when CLI unauthenticated (run `claude /login` to enable) |
 | Classifier eval (`score.py`, 27 labeled corpus entries) | Macro F1 1.000 (small-corpus point estimate, see `evals/classifier-results.md`) |
-| Hot-path micro-benchmarks (`evals/bench/perf-hooks.sh`) | failure-detector ≈180ms/event, churn-gate ≈31ms/event (down from 430/726ms) |
+| Hot-path micro-benchmarks (`evals/bench/perf-hooks.sh`) | times five targets — failure-detector / integrity-guard / test-first / state-snapshot / get_flavor (no standalone churn-gate timing); in-script reference baselines: failure-detector ≈400ms, churn-gate ≈340ms, get_flavor ≈248ms before optimization |
 
-`test-behavior.sh` requires a logged-in claude CLI and live calls (≤90s each, ~10 minutes total); a preflight skips it explicitly when unauthenticated. Its assertions are model-behavior-level and inherently variance-prone — the trigger logic itself is covered deterministically by `test-trigger-regex.sh` (46/46). `evals/pressure/` and `evals/bench/` are the high-pressure baseline and three-arm ablation runners (dry-run by default, `PUA_RUN_LIVE=1` for live runs). `trigger-prompts/` holds 38 should-trigger + 36 should-not-trigger cases for end-to-end verification via `run-trigger-test.sh` (requires the claude CLI).
+`test-behavior.sh` requires a logged-in claude CLI and live calls (≤90s each, ~10 minutes total); a preflight skips it explicitly when unauthenticated. Its assertions are model-behavior-level and inherently variance-prone — the trigger logic itself is covered deterministically by `test-trigger-regex.sh` (46/46). `evals/pressure/` and `evals/bench/` are the high-pressure baseline and three-arm ablation runners (dry-run by default, `PUA_RUN_LIVE=1` for live runs). `trigger-prompts/` holds 24 should-trigger + 22 should-not-trigger effective cases (the files also contain comments and blank lines, not counted), consumed directly by `test-trigger-regex.sh` (46/46); `run-trigger-test.sh` (requires the claude CLI) is the end-to-end check and ships 11 hardcoded cases — it does not read that directory.
 
 ## 📁 Directory Structure
 
@@ -78,11 +78,15 @@ pua/
 ├── SKILL.md            # Trigger gating + flavors/routing + score-based pressure + three red lines
 ├── skill.json          # v0.1.7, MIT
 ├── commands/           # 23 slash commands (flavor / pua-loop / done-check / diagnose / evidence …)
-├── skills/             # 11 sub-skills (pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja)
+├── skills/             # 12 sub-skills (pro / p7 / p9 / p10 / yes / mama / shot / ding / pua-loop / pua-en / pua-ja + the pua thin router shell)
 ├── hooks/              # 14 hook scripts + flavors.json + hooks.json + config-schema.json
 ├── references/         # 32 protocol docs (execution-protocol / methodology-{company}×15 / platform …)
 ├── evals/              # Test suites + 36-fixture gate + 27-entry labeled corpus + pressure/ablation benchmarks
-└── scripts/setup-pua-loop.sh
+├── docs/               # FAQ (misfires / over-triggering / privacy / how to turn it off)
+├── triggers/           # trigger-queries.json — 20 sample trigger queries (q + expect fields)
+├── test-prompts.json   # 3 sample prompts (JSON parseability checked by scripts/skill_lint.py)
+├── scripts/setup-pua-loop.sh # creates the state file for in-session PUA Loop
+└── scripts/skill_lint.py     # skill repo engineering baseline linter (incl. JSON parseability checks)
 ```
 
 ## 🔮 Boundaries

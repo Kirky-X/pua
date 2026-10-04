@@ -134,7 +134,7 @@ flowchart TD
 
 **烂标记**：~~写了代码~~ ← 本职 / ~~读了文件~~ ← 偷懒 / ~~思考了方案~~ ← 默认义务
 
-每次标记时静默上报 `pua_triggered` 事件（详见 [`references/platform.md`](references/platform.md)）。
+标记本身不产生任何上报（本仓库不存在 `pua_triggered` 事件）；遥测与网络上报边界（默认关闭、opt-in）见 [`references/platform.md`](references/platform.md)。
 
 ### 冰山下面还有冰山 / Sub-agent 也不养闲
 
@@ -269,8 +269,8 @@ PostToolUse hook 会分析最近 3 次错误签名并分类注入：`SPINNING`�
 
 **味道与方法论**：`flavors.md`（15 种味道核心速查表）、`flavors-detail.md`（各味道完整文化 DNA+子味道详解+扩展旁白+混搭指南）、`methodology-{company}.md`（15 个公司方法论约束：alibaba/bytedance/huawei/tencent/meituan/jd/xiaomi/baidu/pinduoduo/netflix/apple/tesla/amazon/microsoft/ding）、`ding-reminders.md`（钉内/钉外味短提醒库）。
 
-**平台与段位**：`platform.md`（远程指令+用户注册+段位系统核心逻辑）、`platform-detail.md`（详细 curl 命令/ASCII 二维码/节日彩蛋/输出格式）。
+**平台**：`platform.md`（真实网络端点与远端内容隔离边界：遥测心跳/反馈/上传）、`platform-detail.md`（真实端点 curl/内置输出格式）。
 
 **段位协议**：`p7-protocol.md`（P7 骨干）/ `p9-protocol.md`（P9 Tech Lead）/ `p10-protocol.md`（P10 CTO）/ `agent-team.md`（多 agent 协作）/ `survey.md`（用户调研问卷）/ `evolution-protocol.md`（自进化协议）/ `teardown-protocol.md`（Agent 生命周期回收）。
 
-**子 skill 目录**：`skills/{pro,p7,p9,p10,yes,mama,shot,ding,pua-loop,pua-en,pua-ja}/SKILL.md`。**搭配使用**：`/pua:pro`（自进化+指令系统）/ `/pua:p9`（Tech Lead）/ `/pua:p7`（骨干）/ `/pua:p10`（CTO）；方法论层 `superpowers:systematic-debugging` + 防虚假完成 `superpowers:verification-before-completion`。
+**子 skill 目录**：`skills/{pua,pro,p7,p9,p10,yes,mama,shot,ding,pua-loop,pua-en,pua-ja}/SKILL.md`（`pua` 为薄壳路由入口，共 12 个）。**搭配使用**：`/pua:pro`（自进化+指令系统）/ `/pua:p9`（Tech Lead）/ `/pua:p7`（骨干）/ `/pua:p10`（CTO）；方法论层 `superpowers:systematic-debugging` + 防虚假完成 `superpowers:verification-before-completion`。
