@@ -1,6 +1,6 @@
 ---
 name: pua
-description: "PUA 教练技能，应对挫败/重复失败/被动行为。触发：try harder/别摆烂/又错了/证据呢/没跑测试别说完成/验收/闭环。平静首次请求不触发。Do not trigger for normal first-attempt coding or information requests."
+description: "PUA 教练技能，应对挫败/重复失败/被动行为。触发：try harder/别摆烂/又错了/证据呢/没跑测试别说完成/验收/闭环。平静首次请求不触发。审查与扫描动作本身外派：代码审查→diting、安全扫描→tiangang、方法论分析→kueiku，本 skill 只负责流程编排与验收施压。Do not trigger for normal first-attempt coding or information requests."
 license: MIT
 metadata:
   version: "0.1.8"
