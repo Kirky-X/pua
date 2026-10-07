@@ -1,20 +1,20 @@
 {
-    "name": "pua-skills",
-    "description": "PUA skills: opt-in productivity coaching for try-harder moments, repeated-failure troubleshooting, evidence-first completion checks, and Ding-style workplace reminders.",
-    "owner": {
+  "name": "pua-skills",
+  "description": "PUA skills: opt-in productivity coaching for try-harder moments, repeated-failure troubleshooting, evidence-first completion checks, and Ding-style workplace reminders.",
+  "owner": {
+    "name": "探微安全实验室",
+    "url": "https://github.com/tanweai"
+  },
+  "plugins": [
+    {
+      "name": "pua",
+      "description": "v0.1.7: score-based pressure model with per-session state, cross-session loop memory, deterministic state snapshots, Oracle isolation hardening, TDD/churn gates, and eval infrastructure. PUA productivity coaching — modular skills, 15 workplace/corporate flavors including Ding Inside/Outside, completion-quality checks, retry/change-approach reminders, and feedback tools.",
+      "version": "0.1.9",
+      "source": "./",
+      "author": {
         "name": "探微安全实验室",
         "url": "https://github.com/tanweai"
-    },
-    "plugins": [
-        {
-            "name": "pua",
-            "description": "v0.1.7: score-based pressure model with per-session state, cross-session loop memory, deterministic state snapshots, Oracle isolation hardening, TDD/churn gates, and eval infrastructure. PUA productivity coaching — modular skills, 15 workplace/corporate flavors including Ding Inside/Outside, completion-quality checks, retry/change-approach reminders, and feedback tools.",
-            "version": "0.1.7",
-            "source": "./",
-            "author": {
-                "name": "探微安全实验室",
-                "url": "https://github.com/tanweai"
-            }
-        }
-    ]
+      }
+    }
+  ]
 }
